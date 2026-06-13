@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+interface StreamSource {
+  url: string;
+  quality: string;
+  type: string;
+  provider: string;
+  subtitles?: Array<{ url: string; lang: string; label: string }>;
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const tmdbId = searchParams.get('tmdbId');
@@ -30,8 +38,8 @@ async function getStreamSources(
   type: string,
   season?: string | null,
   episode?: string | null
-) {
-  const sources = [];
+): Promise<StreamSource[]> {
+  const sources: StreamSource[] = [];
 
   // Try Consumet FlixHQ API (free community API)
   try {
@@ -54,17 +62,21 @@ async function getStreamSources(
   return sources;
 }
 
-/**
- * Consumet FlixHQ Provider
- * Free community API that provides direct m3u8 links
- */
+interface StreamSource {
+  url: string;
+  quality: string;
+  type: string;
+  provider: string;
+  subtitles?: Array<{ url: string; lang: string; label: string }>;
+}
+
 async function fetchConsumetFlixHQ(
   tmdbId: string,
   type: string,
   season?: string | null,
   episode?: string | null
-) {
-  const sources = [];
+): Promise<StreamSource[]> {
+  const sources: StreamSource[] = [];
 
   try {
     // Search by TMDB ID
@@ -145,7 +157,7 @@ async function fetchVidSrcDirect(
   type: string,
   season?: string | null,
   episode?: string | null
-) {
+): Promise<StreamSource | null> {
   try {
     const embedUrl =
       type === 'movie'

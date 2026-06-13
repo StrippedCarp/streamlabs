@@ -1,40 +1,60 @@
 :root {
-  /* Modern Dark Theme */
-  --bg-primary: #0a0e27;
-  --bg-secondary: #131829;
-  --bg-tertiary: #1a1f3a;
-  --bg-elevated: #242b4a;
-  --bg-glass: rgba(26, 31, 58, 0.8);
+  /* Modern Netflix/Disney+ Inspired Dark Theme */
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #181818;
+  --bg-tertiary: #212121;
+  --bg-elevated: #2a2a2a;
+  --bg-glass: rgba(33, 33, 33, 0.85);
+  --bg-overlay: rgba(0, 0, 0, 0.85);
   
-  /* Accents */
-  --accent-primary: #667eea;
-  --accent-secondary: #764ba2;
-  --accent-glow: rgba(102, 126, 234, 0.3);
-  --accent-hover: #7c91f5;
+  /* Vibrant Gradient Accents */
+  --accent-primary: #e50914;
+  --accent-secondary: #b20710;
+  --accent-tertiary: #ff3b47;
+  --accent-glow: rgba(229, 9, 20, 0.4);
+  --accent-hover: #ff1f2a;
+  
+  /* Alternative Purple Accent */
+  --purple-primary: #7c3aed;
+  --purple-secondary: #6d28d9;
+  --purple-glow: rgba(124, 58, 237, 0.4);
   
   /* Status Colors */
-  --success: #10b981;
+  --success: #22c55e;
   --warning: #f59e0b;
   --error: #ef4444;
   --info: #3b82f6;
   
   /* Text */
-  --text-primary: #e5e7eb;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-muted: #808080;
+  --text-dim: #4d4d4d;
   
   /* Borders & Dividers */
-  --border: rgba(255, 255, 255, 0.1);
-  --border-light: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-light: rgba(255, 255, 255, 0.06);
+  --border-focus: rgba(229, 9, 20, 0.5);
   
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px var(--accent-glow);
+  --shadow-sm: 0 2px 8px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px 0 rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 48px 0 rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 24px 64px 0 rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 32px var(--accent-glow);
+  --shadow-glow-purple: 0 0 32px var(--purple-glow);
   
   /* Transitions */
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
 }
 
 * {
@@ -49,40 +69,43 @@ html, body {
 
 body {
   overflow-x: hidden;
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
 }
 
 code {
-  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Ultra Thin */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--bg-elevated);
-  border-radius: 4px;
+  border-radius: var(--radius-full);
   transition: var(--transition);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-primary);
+}
+
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-elevated) transparent;
 }
 
 /* Selection */
@@ -91,9 +114,157 @@ code {
   color: var(--text-primary);
 }
 
+/* Focus Styles */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
 /* Backdrop blur support */
-@supports (backdrop-filter: blur(10px)) {
+@supports (backdrop-filter: blur(20px)) {
   .glass-effect {
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(20px) saturate(180%);
   }
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Text Rendering */
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove default button styles */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Remove default input styles */
+input, textarea {
+  font-family: inherit;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Links */
+a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* Animation Utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 0%,
+    var(--bg-elevated) 50%,
+    var(--bg-tertiary) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Utility Classes */
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.4s ease;
+}
+
+.scale-in {
+  animation: scaleIn 0.3s ease;
 }

@@ -1,75 +1,70 @@
 .header {
-  height: 60px;
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-elevated) 100%);
+  height: 64px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 70%, transparent 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
+  padding: 0 clamp(16px, 4vw, 48px);
   position: relative;
   z-index: 100;
   flex-shrink: 0;
-}
-
-.header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-primary));
-  background-size: 200% 100%;
-  animation: gradient-flow 3s linear infinite;
-}
-
-@keyframes gradient-flow {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 200% 0%; }
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: clamp(12px, 2vw, 24px);
 }
 
 .logo {
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.logo:hover {
+  transform: scale(1.05);
 }
 
 .logoIcon {
-  font-size: 32px;
-  filter: drop-shadow(0 0 10px var(--accent-glow));
+  font-size: 28px;
+  filter: drop-shadow(0 0 16px var(--accent-glow));
   animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(-3deg);
+  }
 }
 
 .logoText {
-  font-size: 24px;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, #e50914 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  letter-spacing: -0.5px;
+  text-transform: uppercase;
 }
 
 .tagline {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   padding-left: 16px;
   border-left: 2px solid var(--border);
-  font-weight: 600;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .actions {
@@ -84,29 +79,50 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-secondary);
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-full);
   cursor: pointer;
   transition: var(--transition);
   font-size: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.actionBtn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-primary), var(--purple-primary));
+  opacity: 0;
+  transition: var(--transition);
+  border-radius: inherit;
 }
 
 .actionBtn:hover {
-  background: var(--bg-elevated);
-  border-color: var(--accent-primary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.actionBtn:hover::before {
+  opacity: 0.15;
 }
 
 .actionBtn:active {
   transform: scale(0.95);
 }
 
-/* ── Responsive ── */
+.actionBtn > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .header {
-    height: 52px;
+    height: 56px;
     padding: 0 16px;
   }
 
@@ -115,10 +131,9 @@
   }
 
   .logoText {
-    font-size: 18px;
+    font-size: 20px;
   }
 
-  /* Hide tagline on small screens */
   .tagline {
     display: none;
   }

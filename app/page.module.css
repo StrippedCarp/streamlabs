@@ -4,59 +4,81 @@
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  background: var(--bg-primary);
 }
 
-/* Mode Toggle */
+/* Mode Toggle - Modern Pills Design */
 .modeToggle {
   display: flex;
-  gap: 0;
-  background: var(--bg-tertiary);
-  border-bottom: 1px solid var(--border);
-  padding: 8px 16px;
+  gap: 8px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+  padding: 12px clamp(16px, 4vw, 48px);
   flex-shrink: 0;
+  animation: fadeInDown 0.4s ease;
 }
 
 .modeBtn {
   flex: 1;
-  padding: 10px 16px;
+  padding: 12px 20px;
   font-size: 13px;
-  font-weight: 600;
-  background: var(--bg-secondary);
-  border: 2px solid var(--border);
+  font-weight: 700;
+  background: var(--bg-tertiary);
+  border: 2px solid transparent;
   color: var(--text-secondary);
   cursor: pointer;
   transition: var(--transition);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  border-radius: var(--radius-full);
+  position: relative;
+  overflow: hidden;
 }
 
-.modeBtn:first-child {
-  border-radius: 8px 0 0 8px;
-  border-right: 1px solid var(--border);
-}
-
-.modeBtn:last-child {
-  border-radius: 0 8px 8px 0;
-  border-left: 1px solid var(--border);
+.modeBtn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-primary), var(--purple-primary));
+  opacity: 0;
+  transition: var(--transition);
+  border-radius: inherit;
 }
 
 .modeBtn:hover {
   background: var(--bg-elevated);
   border-color: var(--accent-primary);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.modeBtn:hover::before {
+  opacity: 0.1;
 }
 
 .modeActive {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
-  border-color: var(--accent-primary) !important;
-  color: white !important;
-  box-shadow: var(--shadow-glow);
+  border-color: transparent !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow-glow) !important;
 }
 
-/* ── Desktop layout (shown above 768px) ── */
+.modeActive::before {
+  opacity: 1 !important;
+}
+
+.modeBtn > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Desktop Layout */
 .container {
   display: flex;
   flex: 1;
   overflow: hidden;
+  animation: fadeIn 0.5s ease;
 }
 
 .main {
@@ -64,50 +86,47 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  background: var(--bg-primary);
 }
 
 .searchPanel {
-  width: 360px;
+  width: clamp(320px, 25vw, 400px);
   background: var(--bg-secondary);
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--border-light);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.3s ease;
 }
 
-/* ── Mobile layout (hidden above 768px) ── */
+/* Mobile Layout */
 .mobileContainer {
   display: none;
 }
 
-/* ── Responsive breakpoints ── */
-
-/* Tablet: collapse sidebar widths */
-@media (max-width: 1024px) {
+/* Tablet: reduce sidebar widths */
+@media (max-width: 1200px) {
   .searchPanel {
-    width: 280px;
+    width: 320px;
   }
 }
 
-/* Mobile: hide desktop layout, show mobile layout */
+/* Mobile: hide desktop, show mobile */
 @media (max-width: 768px) {
   .app {
-    height: 100dvh; /* dynamic viewport height — accounts for browser chrome on mobile */
+    height: 100dvh;
     overflow: hidden;
   }
 
-  /* Hide mode toggle on mobile */
   .modeToggle {
     display: none;
   }
 
-  /* Hide desktop layout */
   .container {
     display: none;
   }
 
-  /* Show mobile layout */
   .mobileContainer {
     display: flex;
     flex-direction: column;
@@ -122,8 +141,6 @@
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    /* leave room for the bottom nav */
-    padding-bottom: 0;
   }
 
   .mobileSearchPanel {
@@ -133,15 +150,17 @@
     overflow: hidden;
   }
 
-  /* Bottom navigation bar */
+  /* Bottom Navigation - Modern Glass Design */
   .mobileNav {
     display: flex;
-    background: var(--bg-tertiary);
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px) saturate(180%);
     border-top: 1px solid var(--border);
-    padding: 8px 0;
-    padding-bottom: max(8px, env(safe-area-inset-bottom)); /* iPhone notch support */
+    padding: 8px 8px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
     flex-shrink: 0;
     z-index: 50;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
   }
 
   .mobileNavBtn {
@@ -151,30 +170,48 @@
     align-items: center;
     justify-content: center;
     gap: 4px;
-    padding: 8px 4px;
+    padding: 10px 4px;
     background: transparent;
     border: none;
     color: var(--text-muted);
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     cursor: pointer;
-    transition: var(--transition);
-    border-radius: 10px;
-    margin: 0 4px;
+    transition: var(--transition-fast);
+    border-radius: var(--radius-md);
+    position: relative;
   }
 
   .mobileNavBtn span:first-child {
-    font-size: 20px;
+    font-size: 22px;
+    transition: var(--transition-fast);
   }
 
   .mobileNavBtn:active {
-    transform: scale(0.92);
+    transform: scale(0.9);
   }
 
   .mobileNavActive {
     color: var(--accent-primary);
-    background: var(--accent-glow);
+    background: rgba(229, 9, 20, 0.1);
+  }
+
+  .mobileNavActive span:first-child {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px var(--accent-glow));
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 375px) {
+  .mobileNavBtn {
+    font-size: 9px;
+    padding: 8px 2px;
+  }
+
+  .mobileNavBtn span:first-child {
+    font-size: 20px;
   }
 }
