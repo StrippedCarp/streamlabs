@@ -6,12 +6,14 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
+  flex-shrink: 0;
 }
 
 .header {
   padding: 20px 24px;
   background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .title {
@@ -23,9 +25,10 @@
 }
 
 .seasonSelector {
-  padding: 20px;
+  padding: 16px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-tertiary);
+  flex-shrink: 0;
 }
 
 .label {
@@ -33,14 +36,14 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .seasonGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
   gap: 8px;
 }
 
@@ -81,7 +84,7 @@
   font-size: 12px;
   font-weight: 700;
   color: var(--text-secondary);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   padding: 8px 12px;
   background: var(--bg-tertiary);
   border-radius: 8px;
@@ -92,7 +95,7 @@
 .episodeCard {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding: 12px;
   margin-bottom: 10px;
   background: var(--bg-tertiary);
@@ -119,9 +122,9 @@
   box-shadow: var(--shadow-md);
 }
 
-.episodeCard:hover::before {
-  opacity: 0.05;
-}
+.episodeCard:hover::before { opacity: 0.05; }
+
+.episodeCard:active { transform: scale(0.98); }
 
 .episodeCard.activeEpisode {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
@@ -129,29 +132,24 @@
   box-shadow: var(--shadow-glow);
 }
 
-.episodeCard.activeEpisode::before {
-  opacity: 1;
-}
+.episodeCard.activeEpisode::before { opacity: 1; }
 
 .episodeCard.activeEpisode .episodeName,
-.episodeCard.activeEpisode .episodeNumber {
-  color: white;
-}
+.episodeCard.activeEpisode .episodeNumber { color: white; }
 
-.episodeCard.activeEpisode .episodeOverview {
-  color: rgba(255, 255, 255, 0.8);
-}
+.episodeCard.activeEpisode .episodeOverview { color: rgba(255,255,255,0.8); }
 
 .episodeNumber {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 800;
   color: var(--accent-primary);
-  min-width: 50px;
+  min-width: 44px;
   text-align: center;
   background: var(--bg-secondary);
   padding: 8px;
   border-radius: 8px;
   z-index: 1;
+  flex-shrink: 0;
 }
 
 .episodeInfo {
@@ -185,8 +183,8 @@
 }
 
 .episodeThumb {
-  width: 80px;
-  height: 45px;
+  width: 72px;
+  height: 41px;
   flex-shrink: 0;
   border-radius: 6px;
   background-size: cover;
@@ -216,11 +214,28 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
+  0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
 .loading p {
   font-size: 13px;
   color: var(--text-secondary);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .container { width: 320px; }
+}
+
+/* On mobile this component is rendered full-width inside mobilePanel */
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Hide the thumbnail to save space */
+  .episodeThumb { display: none; }
 }

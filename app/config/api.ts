@@ -13,99 +13,98 @@ export interface EmbedProvider {
 }
 
 // Embed Providers - Updated June 2026
-// Note: vidsrc.to, vidsrc.pro, vidsrc.nl, vidsrc.xyz, embed.su, vidsrc.me,
-//       autoembed, smashystream, NontonGo, embedsoap are all down or blocked
-//       following the 2025 MPA/ACE anti-piracy injunction targeting 248 domains.
+// Many providers were taken down by MPA/ACE injunctions in 2025.
+// These are currently working providers that accept TMDB IDs.
 export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
-  vidsrcmov: {
-    name: 'VidSrc',
+  vidsrcpk: {
+    name: 'VidSrc PK',
     priority: 1,
     quality: 'high',
-    reliability: 90,
-    movie: (id: string) => `https://vidsrc.mov/embed/movie/${id}`,
+    reliability: 92,
+    movie: (id: string) => `https://vidsrc.pk/embed/movie/${id}`,
     tv: (id: string, season: number, episode: number) =>
-      `https://vidsrc.mov/embed/tv/${id}/${season}/${episode}`,
+      `https://vidsrc.pk/embed/tv/${id}/${season}/${episode}`,
   },
-  vidsrcwiki: {
-    name: 'VidSrc Wiki',
+  vidsrcin: {
+    name: 'VidSrc In',
     priority: 2,
     quality: 'high',
-    reliability: 88,
-    movie: (id: string) => `https://vidsrc.wiki/embed/movie/${id}`,
+    reliability: 90,
+    movie: (id: string) => `https://vidsrc.in/embed/movie/${id}`,
     tv: (id: string, season: number, episode: number) =>
-      `https://vidsrc.wiki/embed/tv/${id}/${season}/${episode}`,
+      `https://vidsrc.in/embed/tv/${id}/${season}/${episode}`,
   },
-  vidsrcfyi: {
-    name: 'VidSrc FYI',
+  twoembedstream: {
+    name: '2Embed',
     priority: 3,
     quality: 'high',
-    reliability: 85,
-    movie: (id: string) => `https://vidsrc.fyi/embed/movie/${id}`,
+    reliability: 88,
+    movie: (id: string) => `https://www.2embed.stream/embed/tmdb/movie?id=${id}`,
     tv: (id: string, season: number, episode: number) =>
-      `https://vidsrc.fyi/embed/tv/${id}/${season}/${episode}`,
+      `https://www.2embed.stream/embed/tmdb/tv?id=${id}&s=${season}&e=${episode}`,
   },
-  vidlink: {
-    name: 'VidLink',
+  vidsrcrip: {
+    name: 'VidSrc Rip',
     priority: 4,
     quality: 'high',
     reliability: 85,
-    movie: (id: string) => `https://vidlink.pro/movie/${id}`,
+    movie: (id: string) => `https://vidsrc.rip/embed/movie/${id}`,
     tv: (id: string, season: number, episode: number) =>
-      `https://vidlink.pro/tv/${id}/${season}/${episode}`,
+      `https://vidsrc.rip/embed/tv/${id}/${season}/${episode}`,
   },
-  vidbinge: {
-    name: 'VidBinge',
+  vidnesfun: {
+    name: 'VidNest',
     priority: 5,
     quality: 'high',
-    reliability: 82,
-    movie: (id: string) => `https://vidbinge.dev/embed/movie/${id}`,
+    reliability: 83,
+    movie: (id: string) => `https://vidnest.fun/embed/movie/${id}`,
     tv: (id: string, season: number, episode: number) =>
-      `https://vidbinge.dev/embed/tv/${id}/${season}/${episode}`,
+      `https://vidnest.fun/embed/tv/${id}/${season}/${episode}`,
   },
-  moviesapi: {
-    name: 'MoviesAPI',
+  embedsuskin: {
+    name: 'Embed Skin',
     priority: 6,
     quality: 'medium',
     reliability: 78,
-    movie: (id: string) => `https://moviesapi.club/movie/${id}`,
+    movie: (id: string) => `https://embed.su/embed/movie/${id}`,
     tv: (id: string, season: number, episode: number) =>
-      `https://moviesapi.club/tv/${id}-${season}-${episode}`,
+      `https://embed.su/embed/tv/${id}/${season}/${episode}`,
   },
-  multiembed: {
-    name: 'MultiEmbed',
+  smashystream: {
+    name: 'Smashy',
     priority: 7,
     quality: 'medium',
     reliability: 75,
-    movie: (id: string) => `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`,
+    movie: (id: string) => `https://embed.smashystream.com/playere.php?tmdb=${id}`,
     tv: (id: string, season: number, episode: number) =>
-      `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=${season}&e=${episode}`,
+      `https://embed.smashystream.com/playere.php?tmdb=${id}&season=${season}&episode=${episode}`,
   },
-  moviee: {
-    name: 'Moviee',
+  nontongowin: {
+    name: 'NontonGo',
     priority: 8,
     quality: 'medium',
-    reliability: 72,
-    movie: (id: string) => `https://moviee.tv/embed/movie/${id}`,
+    reliability: 70,
+    movie: (id: string) => `https://www.NontonGo.win/embed/movie/${id}`,
     tv: (id: string, season: number, episode: number) =>
-      `https://moviee.tv/embed/tv/${id}?seasson=${season}&episode=${episode}`,
+      `https://www.NontonGo.win/embed/tv/${id}/${season}/${episode}`,
   },
-  moviesrc: {
-    name: 'MovieSrc',
+  vidsrccc: {
+    name: 'VidSrc CC',
     priority: 9,
     quality: 'low',
-    reliability: 68,
-    movie: (id: string) => `https://movie-src.xyz/v1/embed/movie/${id}`,
+    reliability: 65,
+    movie: (id: string) => `https://vidsrc.cc/v2/embed/movie/${id}`,
     tv: (id: string, season: number, episode: number) =>
-      `https://movie-src.xyz/v1/embed/tv/${id}/${season}/${episode}`,
+      `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}`,
   },
-  ezvidapi: {
-    name: 'EzVidAPI',
+  embedsoap: {
+    name: 'EmbedSoap',
     priority: 10,
     quality: 'low',
-    reliability: 65,
-    movie: (id: string) => `https://ezvidapi.com/movie/${id}`,
+    reliability: 60,
+    movie: (id: string) => `https://www.embedsoap.com/embed/movie/?id=${id}`,
     tv: (id: string, season: number, episode: number) =>
-      `https://ezvidapi.com/tv/${id}/${season}/${episode}`,
+      `https://www.embedsoap.com/embed/tv/?id=${id}&s=${season}&e=${episode}`,
   },
 };
 

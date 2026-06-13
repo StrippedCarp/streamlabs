@@ -45,7 +45,10 @@
 
 html, body {
   height: 100%;
-  overflow: hidden;
+}
+
+body {
+  overflow-x: hidden;
 }
 
 body {

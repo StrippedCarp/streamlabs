@@ -6,6 +6,7 @@
   overflow: hidden;
 }
 
+/* ── Desktop layout (shown above 768px) ── */
 .container {
   display: flex;
   flex: 1;
@@ -27,4 +28,102 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: var(--shadow-md);
+}
+
+/* ── Mobile layout (hidden above 768px) ── */
+.mobileContainer {
+  display: none;
+}
+
+/* ── Responsive breakpoints ── */
+
+/* Tablet: collapse sidebar widths */
+@media (max-width: 1024px) {
+  .searchPanel {
+    width: 280px;
+  }
+}
+
+/* Mobile: hide desktop layout, show mobile layout */
+@media (max-width: 768px) {
+  .app {
+    height: 100dvh; /* dynamic viewport height — accounts for browser chrome on mobile */
+    overflow: hidden;
+  }
+
+  /* Hide desktop layout */
+  .container {
+    display: none;
+  }
+
+  /* Show mobile layout */
+  .mobileContainer {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .mobilePanel {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    /* leave room for the bottom nav */
+    padding-bottom: 0;
+  }
+
+  .mobileSearchPanel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Bottom navigation bar */
+  .mobileNav {
+    display: flex;
+    background: var(--bg-tertiary);
+    border-top: 1px solid var(--border);
+    padding: 8px 0;
+    padding-bottom: max(8px, env(safe-area-inset-bottom)); /* iPhone notch support */
+    flex-shrink: 0;
+    z-index: 50;
+  }
+
+  .mobileNavBtn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: var(--transition);
+    border-radius: 10px;
+    margin: 0 4px;
+  }
+
+  .mobileNavBtn span:first-child {
+    font-size: 20px;
+  }
+
+  .mobileNavBtn:active {
+    transform: scale(0.92);
+  }
+
+  .mobileNavActive {
+    color: var(--accent-primary);
+    background: var(--accent-glow);
+  }
 }

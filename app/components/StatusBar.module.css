@@ -10,12 +10,15 @@
   border-top: 1px solid var(--border);
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
   font-weight: 600;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .left, .right {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
+  min-width: 0;
 }
 
 .item {
@@ -28,10 +31,30 @@
   transition: var(--transition);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .item:hover {
   background: var(--bg-secondary);
   color: var(--text-primary);
   transform: translateY(-1px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .statusBar {
+    height: 28px;
+    padding: 0 12px;
+    font-size: 10px;
+  }
+
+  .left, .right {
+    gap: 8px;
+  }
+
+  .item {
+    padding: 3px 6px;
+  }
 }

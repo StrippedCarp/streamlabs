@@ -212,8 +212,8 @@ export default function VideoPlayer({ url, title, servers, onServerChange, curre
               src={url}
               className={styles.iframe}
               allowFullScreen
-              allow="autoplay; fullscreen; picture-in-picture"
-              sandbox="allow-same-origin allow-scripts allow-forms allow-presentation allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+              allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer"
+              referrerPolicy="origin"
               onLoad={handleIframeLoad}
               onError={handleIframeError}
               style={{ opacity: loading || error || loadTimeout || autoSwitching ? 0.3 : 1 }}

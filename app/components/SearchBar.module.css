@@ -1,7 +1,8 @@
 .searchBar {
-  padding: 24px;
+  padding: 20px 16px;
   border-bottom: 1px solid var(--border);
   background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  flex-shrink: 0;
 }
 
 .form {
@@ -30,9 +31,7 @@
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-.form:focus-within::before {
-  opacity: 0.05;
-}
+.form:focus-within::before { opacity: 0.05; }
 
 .icon {
   margin-right: 12px;
@@ -48,7 +47,7 @@
 
 @keyframes spin {
   from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .input {
@@ -60,11 +59,11 @@
   font-size: 15px;
   font-family: inherit;
   z-index: 1;
+  /* Prevent iOS zoom on focus */
+  font-size: max(16px, 15px);
 }
 
-.input::placeholder {
-  color: var(--text-muted);
-}
+.input::placeholder { color: var(--text-muted); }
 
 .clear {
   background: transparent;
@@ -77,6 +76,12 @@
   transition: var(--transition);
   z-index: 1;
   border-radius: 50%;
+  /* Large touch target */
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .clear:hover {

@@ -15,6 +15,7 @@ import styles from './page.module.css';
 
 export default function Home() {
   const [activeView, setActiveView] = useState('explorer');
+  const [mobileTab, setMobileTab] = useState<'browse' | 'player' | 'episodes'>('browse');
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
   const [currentTitle, setCurrentTitle] = useState('Welcome');
   const [searchResults, setSearchResults] = useState<MediaItem[]>([]);
@@ -47,7 +48,7 @@ export default function Home() {
   const handleMediaSelect = async (item: MediaItem) => {
     setSelectedMedia(item);
     setRetryCount(0);
-    
+
     if (item.type === 'movie') {
       setShowEpisodeSelector(false);
       const streamServers = getStreamServers(item.id, 'movie');
@@ -58,11 +59,13 @@ export default function Home() {
         setCurrentUrl(firstServer.url);
         setCurrentTitle(item.title);
       }
+      // Auto-switch to player on mobile after selecting
+      setMobileTab('player');
     } else {
       const seasons = await getTVSeasons(item.id);
       setTvSeasons(seasons);
       setShowEpisodeSelector(true);
-      
+
       if (seasons.length > 0) {
         setCurrentSeason(1);
         setCurrentEpisode(1);
@@ -75,24 +78,28 @@ export default function Home() {
           setCurrentTitle(`${item.title} S01E01`);
         }
       }
+      // Auto-switch to episodes panel on mobile for TV shows
+      setMobileTab('episodes');
     }
   };
 
   const handleEpisodeSelect = (season: number, episode: number, episodeName: string) => {
     if (!selectedMedia) return;
-    
+
     setCurrentSeason(season);
     setCurrentEpisode(episode);
-    
+
     const streamServers = getStreamServers(selectedMedia.id, 'tv', season, episode);
     setServers(streamServers);
-    
+
     if (streamServers.length > 0) {
       const firstServer = streamServers[0];
       setCurrentServer(firstServer);
       setCurrentUrl(firstServer.url);
       setCurrentTitle(`${selectedMedia.title} S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')} - ${episodeName}`);
     }
+    // Switch to player after picking an episode on mobile
+    setMobileTab('player');
   };
 
   const handleServerChange = (server: StreamServer, resetRetry = true) => {
@@ -106,6 +113,8 @@ export default function Home() {
   return (
     <div className={styles.app}>
       <Header />
+
+      {/* ── Desktop layout ── */}
       <div className={styles.container}>
         <ActivityBar activeView={activeView} onViewChange={setActiveView} />
         {activeView === 'explorer' && (
@@ -118,9 +127,9 @@ export default function Home() {
           </div>
         )}
         <div className={styles.main}>
-          <VideoPlayer 
-            url={currentUrl} 
-            title={currentTitle} 
+          <VideoPlayer
+            url={currentUrl}
+            title={currentTitle}
             servers={servers}
             currentServer={currentServer}
             onServerChange={handleServerChange}
@@ -136,6 +145,89 @@ export default function Home() {
             currentEpisode={currentEpisode}
           />
         )}
+      </div>
+
+      {/* ── Mobile layout ── */}
+      <div className={styles.mobileContainer}>
+        {/* Mobile tab: Browse / Search */}
+        {(mobileTab === 'browse') && (
+          <div className={styles.mobilePanel}>
+            {activeView === 'explorer' && (
+              <Browse onMediaSelect={handleMediaSelect} />
+            )}
+            {activeView === 'search' && (
+              <div className={styles.mobileSearchPanel}>
+                <SearchBar onSearch={handleSearch} />
+                <SearchResults results={searchResults} onSelect={handleMediaSelect} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Mobile tab: Player */}
+        {mobileTab === 'player' && (
+          <div className={styles.mobilePanel}>
+            <VideoPlayer
+              url={currentUrl}
+              title={currentTitle}
+              servers={servers}
+              currentServer={currentServer}
+              onServerChange={handleServerChange}
+            />
+          </div>
+        )}
+
+        {/* Mobile tab: Episodes */}
+        {mobileTab === 'episodes' && showEpisodeSelector && selectedMedia && tvSeasons.length > 0 && (
+          <div className={styles.mobilePanel}>
+            <EpisodeSelector
+              tmdbId={selectedMedia.id}
+              seasons={tvSeasons}
+              onEpisodeSelect={handleEpisodeSelect}
+              currentSeason={currentSeason}
+              currentEpisode={currentEpisode}
+            />
+          </div>
+        )}
+        {mobileTab === 'episodes' && !showEpisodeSelector && (
+          <div className={styles.mobilePanel}>
+            <Browse onMediaSelect={handleMediaSelect} />
+          </div>
+        )}
+
+        {/* Mobile bottom nav */}
+        <nav className={styles.mobileNav}>
+          <button
+            className={`${styles.mobileNavBtn} ${mobileTab === 'browse' && activeView === 'explorer' ? styles.mobileNavActive : ''}`}
+            onClick={() => { setMobileTab('browse'); setActiveView('explorer'); }}
+          >
+            <span>📁</span>
+            <span>Browse</span>
+          </button>
+          <button
+            className={`${styles.mobileNavBtn} ${mobileTab === 'browse' && activeView === 'search' ? styles.mobileNavActive : ''}`}
+            onClick={() => { setMobileTab('browse'); setActiveView('search'); }}
+          >
+            <span>🔍</span>
+            <span>Search</span>
+          </button>
+          <button
+            className={`${styles.mobileNavBtn} ${mobileTab === 'player' ? styles.mobileNavActive : ''}`}
+            onClick={() => setMobileTab('player')}
+          >
+            <span>▶</span>
+            <span>Player</span>
+          </button>
+          {showEpisodeSelector && (
+            <button
+              className={`${styles.mobileNavBtn} ${mobileTab === 'episodes' ? styles.mobileNavActive : ''}`}
+              onClick={() => setMobileTab('episodes')}
+            >
+              <span>📺</span>
+              <span>Episodes</span>
+            </button>
+          )}
+        </nav>
       </div>
     </div>
   );
