@@ -6,6 +6,52 @@
   overflow: hidden;
 }
 
+/* Mode Toggle */
+.modeToggle {
+  display: flex;
+  gap: 0;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
+  flex-shrink: 0;
+}
+
+.modeBtn {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modeBtn:first-child {
+  border-radius: 8px 0 0 8px;
+  border-right: 1px solid var(--border);
+}
+
+.modeBtn:last-child {
+  border-radius: 0 8px 8px 0;
+  border-left: 1px solid var(--border);
+}
+
+.modeBtn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent-primary);
+}
+
+.modeActive {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  border-color: var(--accent-primary) !important;
+  color: white !important;
+  box-shadow: var(--shadow-glow);
+}
+
 /* ── Desktop layout (shown above 768px) ── */
 .container {
   display: flex;
@@ -49,6 +95,11 @@
   .app {
     height: 100dvh; /* dynamic viewport height — accounts for browser chrome on mobile */
     overflow: hidden;
+  }
+
+  /* Hide mode toggle on mobile */
+  .modeToggle {
+    display: none;
   }
 
   /* Hide desktop layout */

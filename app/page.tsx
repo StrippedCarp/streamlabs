@@ -5,6 +5,7 @@ import Header from './components/Header';
 import ActivityBar from './components/ActivityBar';
 import Browse from './components/Browse';
 import VideoPlayer from './components/VideoPlayer';
+import DirectVideoPlayer from './components/DirectVideoPlayer';
 import StatusBar from './components/StatusBar';
 import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
@@ -28,6 +29,8 @@ export default function Home() {
   const [currentSeason, setCurrentSeason] = useState(1);
   const [currentEpisode, setCurrentEpisode] = useState(1);
   const [showEpisodeSelector, setShowEpisodeSelector] = useState(false);
+  // New: Direct streaming mode toggle
+  const [useDirectStreaming, setUseDirectStreaming] = useState(true);
 
   useEffect(() => {
     if (autoRetry && retryCount > 0 && retryCount < servers.length && currentServer) {
@@ -114,6 +117,22 @@ export default function Home() {
     <div className={styles.app}>
       <Header />
 
+      {/* Streaming Mode Toggle */}
+      <div className={styles.modeToggle}>
+        <button
+          className={`${styles.modeBtn} ${useDirectStreaming ? styles.modeActive : ''}`}
+          onClick={() => setUseDirectStreaming(true)}
+        >
+          ⚡ Direct Streaming (No Ads)
+        </button>
+        <button
+          className={`${styles.modeBtn} ${!useDirectStreaming ? styles.modeActive : ''}`}
+          onClick={() => setUseDirectStreaming(false)}
+        >
+          🔗 Embed Mode (Fallback)
+        </button>
+      </div>
+
       {/* ── Desktop layout ── */}
       <div className={styles.container}>
         <ActivityBar activeView={activeView} onViewChange={setActiveView} />
@@ -127,13 +146,23 @@ export default function Home() {
           </div>
         )}
         <div className={styles.main}>
-          <VideoPlayer
-            url={currentUrl}
-            title={currentTitle}
-            servers={servers}
-            currentServer={currentServer}
-            onServerChange={handleServerChange}
-          />
+          {useDirectStreaming ? (
+            <DirectVideoPlayer
+              tmdbId={selectedMedia?.id || null}
+              mediaType={selectedMedia?.type || null}
+              title={currentTitle}
+              season={currentSeason}
+              episode={currentEpisode}
+            />
+          ) : (
+            <VideoPlayer
+              url={currentUrl}
+              title={currentTitle}
+              servers={servers}
+              currentServer={currentServer}
+              onServerChange={handleServerChange}
+            />
+          )}
           <StatusBar currentMedia={currentTitle !== 'Welcome' ? currentTitle : ''} />
         </div>
         {showEpisodeSelector && selectedMedia && tvSeasons.length > 0 && (
@@ -167,13 +196,23 @@ export default function Home() {
         {/* Mobile tab: Player */}
         {mobileTab === 'player' && (
           <div className={styles.mobilePanel}>
-            <VideoPlayer
-              url={currentUrl}
-              title={currentTitle}
-              servers={servers}
-              currentServer={currentServer}
-              onServerChange={handleServerChange}
-            />
+            {useDirectStreaming ? (
+              <DirectVideoPlayer
+                tmdbId={selectedMedia?.id || null}
+                mediaType={selectedMedia?.type || null}
+                title={currentTitle}
+                season={currentSeason}
+                episode={currentEpisode}
+              />
+            ) : (
+              <VideoPlayer
+                url={currentUrl}
+                title={currentTitle}
+                servers={servers}
+                currentServer={currentServer}
+                onServerChange={handleServerChange}
+              />
+            )}
           </div>
         )}
 
