@@ -62,14 +62,10 @@ async function getStreamSources(
   return sources;
 }
 
-interface StreamSource {
-  url: string;
-  quality: string;
-  type: string;
-  provider: string;
-  subtitles?: Array<{ url: string; lang: string; label: string }>;
-}
-
+/**
+ * Consumet FlixHQ Provider
+ * Free community API that provides direct m3u8 links
+ */
 async function fetchConsumetFlixHQ(
   tmdbId: string,
   type: string,
