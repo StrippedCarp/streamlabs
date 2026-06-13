@@ -1,11 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Type definitions at the top
 interface StreamSource {
   url: string;
   quality: string;
   type: string;
   provider: string;
   subtitles?: Array<{ url: string; lang: string; label: string }>;
+}
+
+interface ConsumetSearchData {
+  id?: string;
+  episodes?: Array<{
+    season: number;
+    number: number;
+    id: string;
+  }>;
+}
+
+interface ConsumetWatchData {
+  sources?: Array<{
+    url: string;
+    quality?: string;
+  }>;
+  subtitles?: Array<{
+    url: string;
+    lang: string;
+  }>;
 }
 
 export async function GET(request: NextRequest) {
@@ -83,7 +104,7 @@ async function fetchConsumetFlixHQ(
 
     if (!searchRes.ok) throw new Error('Search failed');
 
-    const searchData = await searchRes.json();
+    const searchData = (await searchRes.json()) as ConsumetSearchData;
     
     if (!searchData || !searchData.id) {
       throw new Error('No media found');
@@ -95,7 +116,7 @@ async function fetchConsumetFlixHQ(
     if (type === 'tv' && searchData.episodes) {
       // Find the specific episode
       const targetEpisode = searchData.episodes.find(
-        (ep: any) => 
+        (ep) => 
           ep.season === parseInt(season || '1') && 
           ep.number === parseInt(episode || '1')
       );
@@ -113,10 +134,10 @@ async function fetchConsumetFlixHQ(
 
     if (!watchRes.ok) throw new Error('Watch fetch failed');
 
-    const watchData = await watchRes.json();
+    const watchData = (await watchRes.json()) as ConsumetWatchData;
 
     if (watchData.sources && Array.isArray(watchData.sources)) {
-      watchData.sources.forEach((source: any) => {
+      watchData.sources.forEach((source) => {
         sources.push({
           url: source.url,
           quality: source.quality || 'auto',
@@ -127,10 +148,10 @@ async function fetchConsumetFlixHQ(
     }
 
     // Add subtitles if available
-    if (watchData.subtitles && Array.isArray(watchData.subtitles)) {
+    if (watchData.subtitles && Array.isArray(watchData.subtitles) && sources.length > 0) {
       sources[0] = {
         ...sources[0],
-        subtitles: watchData.subtitles.map((sub: any) => ({
+        subtitles: watchData.subtitles.map((sub) => ({
           url: sub.url,
           lang: sub.lang,
           label: sub.lang.toUpperCase(),
