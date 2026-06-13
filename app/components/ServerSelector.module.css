@@ -1,0 +1,42 @@
+.container {
+  padding: 15px 20px;
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border);
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.servers {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.server {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.server:hover {
+  background: var(--bg-activity);
+  border-color: var(--accent);
+}
+
+.server.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
