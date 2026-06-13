@@ -51,9 +51,18 @@ export function getStreamServers(
 ): StreamServer[] {
   const servers: StreamServer[] = [];
   
+  // Get reliability stats from localStorage
+  const stats = getProviderStats();
+  
   Object.entries(EMBED_PROVIDERS)
-    .sort((a, b) => a[1].priority - b[1].priority)
-    .forEach(([key, provider]) => {
+    .map(([key, provider]) => ({
+      key,
+      provider,
+      // Adjust priority based on historical success rate
+      adjustedPriority: provider.priority - (stats[key]?.successRate || 0) * 10
+    }))
+    .sort((a, b) => a.adjustedPriority - b.adjustedPriority)
+    .forEach(({ key, provider }) => {
       const url = type === 'movie' 
         ? provider.movie(tmdbId.toString())
         : provider.tv(tmdbId.toString(), season || 1, episode || 1);
@@ -70,6 +79,52 @@ export function getStreamServers(
     });
   
   return servers;
+}
+
+// Provider reputation system
+interface ProviderStats {
+  [key: string]: {
+    successes: number;
+    failures: number;
+    successRate: number;
+    lastUpdated: number;
+  };
+}
+
+function getProviderStats(): ProviderStats {
+  if (typeof window === 'undefined') return {};
+  const stored = localStorage.getItem('providerStats');
+  return stored ? JSON.parse(stored) : {};
+}
+
+export function recordProviderSuccess(provider: string) {
+  if (typeof window === 'undefined') return;
+  const stats = getProviderStats();
+  
+  if (!stats[provider]) {
+    stats[provider] = { successes: 0, failures: 0, successRate: 0, lastUpdated: Date.now() };
+  }
+  
+  stats[provider].successes++;
+  stats[provider].successRate = stats[provider].successes / (stats[provider].successes + stats[provider].failures);
+  stats[provider].lastUpdated = Date.now();
+  
+  localStorage.setItem('providerStats', JSON.stringify(stats));
+}
+
+export function recordProviderFailure(provider: string) {
+  if (typeof window === 'undefined') return;
+  const stats = getProviderStats();
+  
+  if (!stats[provider]) {
+    stats[provider] = { successes: 0, failures: 0, successRate: 0, lastUpdated: Date.now() };
+  }
+  
+  stats[provider].failures++;
+  stats[provider].successRate = stats[provider].successes / (stats[provider].successes + stats[provider].failures);
+  stats[provider].lastUpdated = Date.now();
+  
+  localStorage.setItem('providerStats', JSON.stringify(stats));
 }
 
 export async function checkServerStatus(url: string): Promise<'online' | 'offline' | 'timeout'> {

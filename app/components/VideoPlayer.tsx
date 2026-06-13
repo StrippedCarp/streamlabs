@@ -35,6 +35,12 @@ export default function VideoPlayer({ url, title, servers, onServerChange, curre
       timeoutRef.current = setTimeout(() => {
         setLoadTimeout(true);
         setLoading(false);
+        // Record timeout as failure
+        if (currentServer && typeof window !== 'undefined') {
+          import('../utils/tmdb').then(({ recordProviderFailure }) => {
+            recordProviderFailure(currentServer.provider);
+          });
+        }
         // Auto-switch to next server after timeout
         tryNextServer();
       }, 15000);
@@ -71,6 +77,12 @@ export default function VideoPlayer({ url, title, servers, onServerChange, curre
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
+    // Record successful load
+    if (currentServer && typeof window !== 'undefined') {
+      import('../utils/tmdb').then(({ recordProviderSuccess }) => {
+        recordProviderSuccess(currentServer.provider);
+      });
+    }
   };
 
   const handleIframeError = () => {
@@ -78,6 +90,12 @@ export default function VideoPlayer({ url, title, servers, onServerChange, curre
     setError(true);
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
+    }
+    // Record failure
+    if (currentServer && typeof window !== 'undefined') {
+      import('../utils/tmdb').then(({ recordProviderFailure }) => {
+        recordProviderFailure(currentServer.provider);
+      });
     }
     // Auto-switch to next server on error
     tryNextServer();
