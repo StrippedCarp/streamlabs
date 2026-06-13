@@ -3,20 +3,36 @@
   background: var(--bg-secondary);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--border-light);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .header {
-  padding: 20px 24px;
-  font-size: 12px;
-  font-weight: 700;
+  padding: 24px;
+  font-size: 11px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-secondary);
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  letter-spacing: 2px;
+  background: linear-gradient(180deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
   border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .content {
@@ -26,17 +42,19 @@
 }
 
 .folder, .subfolder {
-  padding: 10px 16px;
+  padding: 12px 18px;
   margin: 4px 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   user-select: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   transition: var(--transition);
   position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
 }
 
 .folder::before, .subfolder::before {
@@ -45,33 +63,37 @@
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
+  width: 4px;
   height: 0;
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   border-radius: 0 2px 2px 0;
   transition: var(--transition);
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .folder:hover, .subfolder:hover {
   background: var(--bg-elevated);
   color: var(--text-primary);
-  transform: translateX(4px);
+  transform: translateX(6px);
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .folder:hover::before, .subfolder:hover::before {
-  height: 60%;
+  height: 70%;
 }
 
 .folderIcon {
-  margin-right: 10px;
+  margin-right: 12px;
   color: var(--accent-primary);
-  font-size: 12px;
-  width: 14px;
+  font-size: 14px;
+  width: 16px;
   transition: var(--transition);
+  filter: drop-shadow(0 2px 4px var(--accent-glow));
 }
 
 .folder:hover .folderIcon, .subfolder:hover .folderIcon {
-  transform: scale(1.2);
+  transform: scale(1.2) rotate(5deg);
 }
 
 .files {
@@ -80,39 +102,73 @@
 }
 
 .file, .episode {
-  padding: 8px 16px 8px 40px;
+  padding: 10px 18px 10px 42px;
   margin: 2px 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   font-size: 13px;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  border-radius: 6px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  border-radius: var(--radius-md);
   transition: var(--transition);
   color: var(--text-secondary);
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.file::before, .episode::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0;
+  transition: var(--transition);
 }
 
 .file:hover, .episode:hover {
   background: var(--bg-elevated);
   color: var(--text-primary);
-  transform: translateX(4px);
+  transform: translateX(6px);
   box-shadow: var(--shadow-sm);
+}
+
+.file:hover::before, .episode:hover::before {
+  opacity: 0.08;
 }
 
 .file:active, .episode:active {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: white;
-  transform: scale(0.98);
+  transform: scale(0.97);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.file:active::before, .episode:active::before {
+  opacity: 1;
 }
 
 .fileIcon {
   margin-right: 10px;
   font-size: 14px;
   filter: grayscale(0.3);
+  transition: var(--transition);
+  position: relative;
+  z-index: 1;
+}
+
+.file:hover .fileIcon, .episode:hover .fileIcon {
+  filter: grayscale(0);
+  transform: scale(1.1);
+}
+
+.file > *, .episode > * {
+  position: relative;
+  z-index: 1;
 }
 
 .subfolder {
-  padding-left: 32px;
+  padding-left: 36px;
   margin-left: 12px;
 }
 
@@ -122,6 +178,6 @@
 }
 
 .episode {
-  padding-left: 56px;
+  padding-left: 60px;
   font-size: 12px;
 }

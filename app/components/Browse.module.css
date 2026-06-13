@@ -3,6 +3,7 @@
   overflow-y: auto;
   background: var(--bg-primary);
   padding-bottom: 40px;
+  animation: fadeIn 0.4s ease;
 }
 
 /* Loading State */
@@ -21,9 +22,11 @@
   height: 60px;
   border: 4px solid var(--border);
   border-top: 4px solid var(--accent-primary);
+  border-right: 4px solid var(--accent-secondary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 20px;
+  box-shadow: var(--shadow-glow);
 }
 
 @keyframes spin {
@@ -40,6 +43,7 @@
   min-height: 220px;
   overflow: hidden;
   margin-bottom: 20px;
+  animation: fadeIn 0.6s ease;
 }
 
 .heroBackground {
@@ -47,8 +51,13 @@
   inset: 0;
   background-size: cover;
   background-position: center;
-  filter: blur(8px);
+  filter: blur(12px);
   transform: scale(1.1);
+  transition: var(--transition-slow);
+}
+
+.hero:hover .heroBackground {
+  transform: scale(1.15);
 }
 
 .heroOverlay {
@@ -56,9 +65,9 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(10, 14, 39, 0.3) 0%,
-    rgba(10, 14, 39, 0.8) 70%,
-    rgba(10, 14, 39, 1) 100%
+    rgba(15, 15, 15, 0.2) 0%,
+    rgba(15, 15, 15, 0.7) 60%,
+    rgba(15, 15, 15, 1) 100%
   );
 }
 
@@ -127,37 +136,68 @@
 }
 
 .playBtn, .infoBtn {
-  padding: clamp(10px, 2vw, 16px) clamp(20px, 4vw, 40px);
+  padding: clamp(12px, 2vw, 18px) clamp(24px, 4vw, 48px);
   font-size: clamp(14px, 2vw, 18px);
   font-weight: 700;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 10px;
   transition: var(--transition);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
 }
 
 .playBtn {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: white;
-  box-shadow: 0 8px 24px var(--accent-glow);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
 }
 
-.playBtn:hover { transform: translateY(-3px); box-shadow: 0 12px 32px var(--accent-glow); }
-.playBtn:active { transform: scale(0.97); }
+.playBtn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-primary));
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.playBtn:hover::before {
+  opacity: 1;
+}
+
+.playBtn:hover { 
+  transform: translateY(-4px); 
+  box-shadow: var(--shadow-xl), 0 0 40px var(--accent-glow);
+}
+
+.playBtn:active { transform: scale(0.96); }
+
+.playBtn > * {
+  position: relative;
+  z-index: 1;
+}
 
 .infoBtn {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass);
   color: white;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border);
 }
 
-.infoBtn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-3px); }
-.infoBtn:active { transform: scale(0.97); }
+.infoBtn:hover { 
+  background: rgba(255, 255, 255, 0.25); 
+  transform: translateY(-4px);
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.infoBtn:active { transform: scale(0.96); }
 
 /* Sections */
 .section {
@@ -198,35 +238,38 @@
   transition: var(--transition);
   animation: fadeIn 0.5s ease;
   scroll-snap-align: start;
+  border-radius: var(--radius-md);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .card:hover {
-  transform: scale(1.05) translateY(-6px);
+  transform: scale(1.08) translateY(-8px);
   z-index: 10;
 }
 
 .card:active {
-  transform: scale(0.97);
+  transform: scale(0.95);
 }
 
 .cardPoster {
   position: relative;
   width: 100%;
   aspect-ratio: 2 / 3;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--bg-elevated);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   transition: var(--transition);
+  border: 1px solid var(--border-light);
 }
 
 .card:hover .cardPoster {
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-xl), 0 0 32px rgba(0, 0, 0, 0.8);
+  border-color: var(--accent-primary);
 }
 
 .cardPoster img {
@@ -243,12 +286,17 @@
 .cardOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(10, 14, 39, 0) 0%, rgba(10, 14, 39, 0.8) 100%);
+  background: linear-gradient(
+    to bottom, 
+    rgba(15, 15, 15, 0) 0%, 
+    rgba(15, 15, 15, 0.9) 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   transition: var(--transition);
+  backdrop-filter: blur(4px);
 }
 
 .card:hover .cardOverlay {
@@ -259,19 +307,31 @@
   width: 64px;
   height: 64px;
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
+  font-size: 28px;
   color: white;
-  box-shadow: var(--shadow-glow);
-  animation: pulse 2s infinite;
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+  animation: pulse-play 2s ease-in-out infinite;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: var(--transition);
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1);    box-shadow: 0 0 20px var(--accent-glow); }
-  50%       { transform: scale(1.05); box-shadow: 0 0 40px var(--accent-glow); }
+.card:hover .cardPlay {
+  transform: scale(1.1);
+}
+
+@keyframes pulse-play {
+  0%, 100% { 
+    transform: scale(1); 
+    box-shadow: var(--shadow-md), 0 0 24px var(--accent-glow); 
+  }
+  50% { 
+    transform: scale(1.08); 
+    box-shadow: var(--shadow-md), 0 0 48px var(--accent-glow); 
+  }
 }
 
 .cardInfo {
@@ -307,7 +367,7 @@
   /* Always show the overlay on touch (no hover) */
   .cardOverlay {
     opacity: 1;
-    background: linear-gradient(to bottom, transparent 40%, rgba(10, 14, 39, 0.75) 100%);
+    background: linear-gradient(to bottom, transparent 40%, rgba(15, 15, 15, 0.85) 100%);
   }
 
   .cardPlay {

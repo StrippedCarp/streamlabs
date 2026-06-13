@@ -40,17 +40,36 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Missing tmdbId or type' }, { status: 400 });
   }
 
+  console.log(`\n=== Stream API Request ===`);
+  console.log(`TMDB ID: ${tmdbId}`);
+  console.log(`Type: ${type}`);
+  if (type === 'tv') {
+    console.log(`Season: ${season}, Episode: ${episode}`);
+  }
+
   try {
     const sources = await getStreamSources(tmdbId, type, season, episode);
     
+    console.log(`Found ${sources.length} total sources`);
+    
     if (sources.length === 0) {
-      return NextResponse.json({ error: 'No streams found' }, { status: 404 });
+      return NextResponse.json({ 
+        error: 'No streams found',
+        message: 'This content may not be available yet. Try a different title or use Embed Mode instead.'
+      }, { status: 404 });
     }
 
-    return NextResponse.json({ sources });
+    return NextResponse.json({ 
+      sources,
+      count: sources.length,
+      providers: sources.map(s => s.provider).join(', ')
+    });
   } catch (error) {
     console.error('Stream API error:', error);
-    return NextResponse.json({ error: 'Failed to fetch streams' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to fetch streams',
+      message: 'An error occurred while fetching stream sources. Please try again.'
+    }, { status: 500 });
   }
 }
 
@@ -61,6 +80,16 @@ async function getStreamSources(
   episode?: string | null
 ): Promise<StreamSource[]> {
   const sources: StreamSource[] = [];
+
+  // Try VidFast (priority 1 - highest reliability)
+  try {
+    const vidfastSource = await fetchVidFastDirect(tmdbId, type, season, episode);
+    if (vidfastSource) {
+      sources.push(vidfastSource);
+    }
+  } catch (e) {
+    console.error('VidFast failed:', e);
+  }
 
   // Try Consumet FlixHQ API (free community API)
   try {
@@ -96,19 +125,31 @@ async function fetchConsumetFlixHQ(
   const sources: StreamSource[] = [];
 
   try {
+    console.log(`Consumet: Searching for TMDB ${tmdbId} (${type})`);
+    
     // Search by TMDB ID
-    const searchUrl = `https://api.consumet.org/movies/flixhq/${type}/${tmdbId}`;
+    const searchUrl = `https://consumet-api.vercel.app/movies/flixhq/${tmdbId}`;
     const searchRes = await fetch(searchUrl, {
-      headers: { 'User-Agent': 'Mozilla/5.0' },
+      headers: { 
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': 'application/json',
+      },
+      signal: AbortSignal.timeout(15000), // 15 second timeout
     });
 
-    if (!searchRes.ok) throw new Error('Search failed');
+    if (!searchRes.ok) {
+      console.log(`Consumet search failed: ${searchRes.status}`);
+      throw new Error(`Search failed: ${searchRes.status}`);
+    }
 
     const searchData = (await searchRes.json()) as ConsumetSearchData;
     
     if (!searchData || !searchData.id) {
+      console.log('Consumet: No media ID found');
       throw new Error('No media found');
     }
+
+    console.log(`Consumet: Found media ID: ${searchData.id}`);
 
     // Get episode/movie ID
     let episodeId = searchData.id;
@@ -123,46 +164,138 @@ async function fetchConsumetFlixHQ(
       
       if (targetEpisode) {
         episodeId = targetEpisode.id;
+        console.log(`Consumet: Using episode ID: ${episodeId}`);
+      } else {
+        console.log(`Consumet: Episode S${season}E${episode} not found`);
       }
     }
 
-    // Get watch links
-    const watchUrl = `https://api.consumet.org/movies/flixhq/watch?episodeId=${encodeURIComponent(episodeId)}&mediaId=${encodeURIComponent(searchData.id)}&server=vidcloud`;
-    const watchRes = await fetch(watchUrl, {
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-    });
-
-    if (!watchRes.ok) throw new Error('Watch fetch failed');
-
-    const watchData = (await watchRes.json()) as ConsumetWatchData;
-
-    if (watchData.sources && Array.isArray(watchData.sources)) {
-      watchData.sources.forEach((source) => {
-        sources.push({
-          url: source.url,
-          quality: source.quality || 'auto',
-          type: source.url.includes('.m3u8') ? 'hls' : 'mp4',
-          provider: 'flixhq',
+    // Get watch links - try multiple servers
+    const servers = ['vidcloud', 'upcloud', 'mixdrop'];
+    
+    for (const server of servers) {
+      try {
+        const watchUrl = `https://consumet-api.vercel.app/movies/flixhq/watch?episodeId=${encodeURIComponent(episodeId)}&mediaId=${encodeURIComponent(searchData.id)}&server=${server}`;
+        console.log(`Consumet: Trying server ${server}...`);
+        
+        const watchRes = await fetch(watchUrl, {
+          headers: { 
+            'User-Agent': 'Mozilla/5.0',
+            'Accept': 'application/json',
+          },
+          signal: AbortSignal.timeout(15000),
         });
-      });
+
+        if (!watchRes.ok) {
+          console.log(`Consumet ${server} failed: ${watchRes.status}`);
+          continue;
+        }
+
+        const watchData = (await watchRes.json()) as ConsumetWatchData;
+
+        if (watchData.sources && Array.isArray(watchData.sources) && watchData.sources.length > 0) {
+          console.log(`Consumet: Found ${watchData.sources.length} sources from ${server}`);
+          
+          watchData.sources.forEach((source) => {
+            sources.push({
+              url: source.url,
+              quality: source.quality || 'auto',
+              type: source.url.includes('.m3u8') ? 'hls' : 'mp4',
+              provider: `flixhq-${server}`,
+            });
+          });
+
+          // Add subtitles if available
+          if (watchData.subtitles && Array.isArray(watchData.subtitles) && sources.length > 0) {
+            sources[0] = {
+              ...sources[0],
+              subtitles: watchData.subtitles.map((sub) => ({
+                url: sub.url,
+                lang: sub.lang,
+                label: sub.lang.toUpperCase(),
+              })),
+            };
+          }
+
+          break; // Got sources, stop trying other servers
+        }
+      } catch (serverError) {
+        console.error(`Consumet ${server} error:`, serverError);
+      }
     }
 
-    // Add subtitles if available
-    if (watchData.subtitles && Array.isArray(watchData.subtitles) && sources.length > 0) {
-      sources[0] = {
-        ...sources[0],
-        subtitles: watchData.subtitles.map((sub) => ({
-          url: sub.url,
-          lang: sub.lang,
-          label: sub.lang.toUpperCase(),
-        })),
-      };
+    if (sources.length === 0) {
+      console.log('Consumet: No sources found from any server');
     }
   } catch (error) {
     console.error('Consumet FlixHQ error:', error);
   }
 
   return sources;
+}
+
+/**
+ * VidFast Direct Link Extractor (Priority 1)
+ * Extracts m3u8 from VidFast embed pages
+ * Note: VidFast requires iframe embedding - direct scraping may not work
+ */
+async function fetchVidFastDirect(
+  tmdbId: string,
+  type: string,
+  season?: string | null,
+  episode?: string | null
+): Promise<StreamSource | null> {
+  try {
+    const embedUrl =
+      type === 'movie'
+        ? `https://vidfast.pro/movie/${tmdbId}`
+        : `https://vidfast.pro/tv/${tmdbId}/${season}/${episode}`;
+
+    const response = await fetch(embedUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Referer': 'https://vidfast.pro/',
+      },
+      signal: AbortSignal.timeout(10000), // 10 second timeout
+    });
+
+    if (!response.ok) {
+      console.log(`VidFast returned ${response.status}`);
+      return null;
+    }
+
+    const html = await response.text();
+
+    // Try multiple patterns to extract m3u8
+    const patterns = [
+      /https?:\/\/[^\s"'<>]+\.m3u8[^\s"'<>]*/gi,
+      /"file":\s*"([^"]+\.m3u8[^"]*)"/i,
+      /'file':\s*'([^']+\.m3u8[^']*)'/i,
+      /sources?:\s*\[?\s*{[^}]*url:\s*["']([^"']+\.m3u8[^"']*)/i,
+    ];
+
+    for (const pattern of patterns) {
+      const match = html.match(pattern);
+      if (match) {
+        const url = match[1] || match[0];
+        console.log('VidFast found stream:', url);
+        return {
+          url: url.replace(/\\/g, ''),
+          quality: 'auto',
+          type: 'hls',
+          provider: 'vidfast',
+        };
+      }
+    }
+
+    console.log('VidFast: No m3u8 found in response');
+    return null;
+  } catch (error) {
+    console.error('VidFast direct error:', error);
+    return null;
+  }
 }
 
 /**
@@ -176,31 +309,65 @@ async function fetchVidSrcDirect(
   episode?: string | null
 ): Promise<StreamSource | null> {
   try {
-    const embedUrl =
-      type === 'movie'
-        ? `https://vidsrc.xyz/embed/movie/${tmdbId}`
-        : `https://vidsrc.xyz/embed/tv/${tmdbId}/${season}/${episode}`;
+    // Try multiple VidSrc domains
+    const domains = [
+      'vidsrc.xyz',
+      'vidsrc.me',
+      'vidsrc.net',
+      'vidsrc.pm',
+    ];
 
-    const response = await fetch(embedUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-    });
+    for (const domain of domains) {
+      try {
+        const embedUrl =
+          type === 'movie'
+            ? `https://${domain}/embed/movie/${tmdbId}`
+            : `https://${domain}/embed/tv/${tmdbId}/${season}/${episode}`;
 
-    if (!response.ok) return null;
+        console.log(`VidSrc: Trying ${domain}...`);
 
-    const html = await response.text();
+        const response = await fetch(embedUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Referer': `https://${domain}/`,
+          },
+          signal: AbortSignal.timeout(10000),
+        });
 
-    // Try to extract m3u8 URL from embed page
-    const m3u8Match = html.match(/https?:\/\/[^\s"'<>]+\.m3u8[^\s"'<>]*/i);
-    
-    if (m3u8Match) {
-      return {
-        url: m3u8Match[0],
-        quality: 'auto',
-        type: 'hls',
-        provider: 'vidsrc',
-      };
+        if (!response.ok) {
+          console.log(`VidSrc ${domain} returned ${response.status}`);
+          continue;
+        }
+
+        const html = await response.text();
+
+        // Try multiple extraction patterns
+        const patterns = [
+          /https?:\/\/[^\s"'<>]+\.m3u8[^\s"'<>]*/gi,
+          /"file":\s*"([^"]+\.m3u8[^"]*)"/i,
+          /'file':\s*'([^']+\.m3u8[^']*)'/i,
+          /sources?:\s*\[?\s*{[^}]*url:\s*["']([^"']+\.m3u8[^"']*)/i,
+        ];
+
+        for (const pattern of patterns) {
+          const match = html.match(pattern);
+          if (match) {
+            const url = match[1] || match[0];
+            console.log(`VidSrc found stream from ${domain}:`, url);
+            return {
+              url: url.replace(/\\/g, ''),
+              quality: 'auto',
+              type: 'hls',
+              provider: `vidsrc-${domain.split('.')[1]}`,
+            };
+          }
+        }
+
+        console.log(`VidSrc: No m3u8 found in ${domain}`);
+      } catch (domainError) {
+        console.error(`VidSrc ${domain} error:`, domainError);
+      }
     }
 
     return null;

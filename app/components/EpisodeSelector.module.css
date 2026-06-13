@@ -1,31 +1,47 @@
 .container {
   width: 400px;
   background: var(--bg-secondary);
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--border-light);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-xl);
   flex-shrink: 0;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .header {
-  padding: 20px 24px;
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  padding: 24px;
+  background: linear-gradient(180deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .title {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-primary);
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .seasonSelector {
-  padding: 16px;
+  padding: 20px 16px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-tertiary);
   flex-shrink: 0;
@@ -33,31 +49,43 @@
 
 .label {
   display: block;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--text-secondary);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 }
 
 .seasonGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 10px;
 }
 
 .seasonBtn {
-  padding: 10px;
+  padding: 12px;
   background: var(--bg-secondary);
   border: 2px solid var(--border);
   color: var(--text-secondary);
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   transition: var(--transition);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.seasonBtn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0;
+  transition: var(--transition);
+  border-radius: inherit;
 }
 
 .seasonBtn:hover {
@@ -65,13 +93,27 @@
   border-color: var(--accent-primary);
   color: var(--text-primary);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.seasonBtn:hover::before {
+  opacity: 0.1;
 }
 
 .seasonBtn.active {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   border-color: var(--accent-primary);
   color: white;
-  box-shadow: var(--shadow-glow);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.seasonBtn.active::before {
+  opacity: 1;
+}
+
+.seasonBtn > * {
+  position: relative;
+  z-index: 1;
 }
 
 .episodeList {
@@ -81,26 +123,27 @@
 }
 
 .episodeHeader {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   color: var(--text-secondary);
-  margin-bottom: 14px;
-  padding: 8px 12px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
   background: var(--bg-tertiary);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  border: 1px solid var(--border-light);
 }
 
 .episodeCard {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  margin-bottom: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
   background: var(--bg-tertiary);
   border: 2px solid var(--border-light);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: var(--transition);
   position: relative;
@@ -119,37 +162,49 @@
 .episodeCard:hover {
   border-color: var(--accent-primary);
   transform: translateX(4px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-md), 0 4px 16px var(--accent-glow);
 }
 
-.episodeCard:hover::before { opacity: 0.05; }
+.episodeCard:hover::before { 
+  opacity: 0.08; 
+}
 
-.episodeCard:active { transform: scale(0.98); }
+.episodeCard:active { 
+  transform: scale(0.97); 
+}
 
 .episodeCard.activeEpisode {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   border-color: var(--accent-primary);
-  box-shadow: var(--shadow-glow);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
 }
 
-.episodeCard.activeEpisode::before { opacity: 1; }
+.episodeCard.activeEpisode::before { 
+  opacity: 1; 
+}
 
 .episodeCard.activeEpisode .episodeName,
-.episodeCard.activeEpisode .episodeNumber { color: white; }
+.episodeCard.activeEpisode .episodeNumber { 
+  color: white; 
+}
 
-.episodeCard.activeEpisode .episodeOverview { color: rgba(255,255,255,0.8); }
+.episodeCard.activeEpisode .episodeOverview { 
+  color: rgba(255,255,255,0.85); 
+}
 
 .episodeNumber {
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 900;
   color: var(--accent-primary);
-  min-width: 44px;
+  min-width: 48px;
   text-align: center;
   background: var(--bg-secondary);
-  padding: 8px;
-  border-radius: 8px;
+  padding: 10px;
+  border-radius: var(--radius-md);
   z-index: 1;
   flex-shrink: 0;
+  border: 1px solid var(--border-light);
+  letter-spacing: 0.5px;
 }
 
 .episodeInfo {
@@ -160,21 +215,22 @@
 
 .episodeName {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   line-height: 1.4;
+  letter-spacing: 0.3px;
 }
 
 .episodeOverview {
   font-size: 11px;
   color: var(--text-muted);
-  line-height: 1.4;
+  line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -183,15 +239,22 @@
 }
 
 .episodeThumb {
-  width: 72px;
-  height: 41px;
+  width: 80px;
+  height: 45px;
   flex-shrink: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background-size: cover;
   background-position: center;
   background-color: var(--bg-elevated);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   z-index: 1;
+  border: 1px solid var(--border-light);
+  transition: var(--transition);
+}
+
+.episodeCard:hover .episodeThumb {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
 }
 
 .loading {
@@ -199,18 +262,21 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
   color: var(--text-muted);
+  animation: fadeIn 0.4s ease;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border: 3px solid var(--border);
   border-top: 3px solid var(--accent-primary);
+  border-right: 3px solid var(--accent-secondary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-glow);
 }
 
 @keyframes spin {
@@ -221,11 +287,12 @@
 .loading p {
   font-size: 13px;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 /* ── Responsive ── */
 @media (max-width: 1200px) {
-  .container { width: 320px; }
+  .container { width: 340px; }
 }
 
 /* On mobile this component is rendered full-width inside mobilePanel */
@@ -234,8 +301,30 @@
     width: 100%;
     border-left: none;
     border-top: 1px solid var(--border);
+    animation: fadeInUp 0.3s ease;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
   /* Hide the thumbnail to save space */
   .episodeThumb { display: none; }
+  
+  .episodeCard {
+    padding: 12px;
+  }
+  
+  .episodeNumber {
+    min-width: 40px;
+    padding: 8px;
+    font-size: 15px;
+  }
 }

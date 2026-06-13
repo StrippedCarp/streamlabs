@@ -16,9 +16,18 @@ export interface EmbedProvider {
 // Many providers were taken down by MPA/ACE injunctions in 2025.
 // These are currently working providers that accept TMDB IDs.
 export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
+  vidfast: {
+    name: 'VidFast',
+    priority: 1,
+    quality: 'high',
+    reliability: 95,
+    movie: (id: string) => `https://vidfast.pro/movie/${id}?autoPlay=true`,
+    tv: (id: string, season: number, episode: number) =>
+      `https://vidfast.pro/tv/${id}/${season}/${episode}?autoPlay=true`,
+  },
   vidsrcpk: {
     name: 'VidSrc PK',
-    priority: 1,
+    priority: 2,
     quality: 'high',
     reliability: 92,
     movie: (id: string) => `https://vidsrc.pk/embed/movie/${id}`,
@@ -27,7 +36,7 @@ export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
   },
   vidsrcin: {
     name: 'VidSrc In',
-    priority: 2,
+    priority: 3,
     quality: 'high',
     reliability: 90,
     movie: (id: string) => `https://vidsrc.in/embed/movie/${id}`,
@@ -36,7 +45,7 @@ export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
   },
   twoembedstream: {
     name: '2Embed',
-    priority: 3,
+    priority: 4,
     quality: 'high',
     reliability: 88,
     movie: (id: string) => `https://www.2embed.stream/embed/tmdb/movie?id=${id}`,
@@ -45,7 +54,7 @@ export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
   },
   vidsrcrip: {
     name: 'VidSrc Rip',
-    priority: 4,
+    priority: 5,
     quality: 'high',
     reliability: 85,
     movie: (id: string) => `https://vidsrc.rip/embed/movie/${id}`,
@@ -54,7 +63,7 @@ export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
   },
   vidnesfun: {
     name: 'VidNest',
-    priority: 5,
+    priority: 6,
     quality: 'high',
     reliability: 83,
     movie: (id: string) => `https://vidnest.fun/embed/movie/${id}`,
@@ -63,7 +72,7 @@ export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
   },
   embedsuskin: {
     name: 'Embed Skin',
-    priority: 6,
+    priority: 7,
     quality: 'medium',
     reliability: 78,
     movie: (id: string) => `https://embed.su/embed/movie/${id}`,
@@ -72,7 +81,7 @@ export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
   },
   smashystream: {
     name: 'Smashy',
-    priority: 7,
+    priority: 8,
     quality: 'medium',
     reliability: 75,
     movie: (id: string) => `https://embed.smashystream.com/playere.php?tmdb=${id}`,
@@ -81,7 +90,7 @@ export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
   },
   nontongowin: {
     name: 'NontonGo',
-    priority: 8,
+    priority: 9,
     quality: 'medium',
     reliability: 70,
     movie: (id: string) => `https://www.NontonGo.win/embed/movie/${id}`,
@@ -90,7 +99,7 @@ export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
   },
   vidsrccc: {
     name: 'VidSrc CC',
-    priority: 9,
+    priority: 10,
     quality: 'low',
     reliability: 65,
     movie: (id: string) => `https://vidsrc.cc/v2/embed/movie/${id}`,
@@ -99,7 +108,7 @@ export const EMBED_PROVIDERS: Record<string, EmbedProvider> = {
   },
   embedsoap: {
     name: 'EmbedSoap',
-    priority: 10,
+    priority: 11,
     quality: 'low',
     reliability: 60,
     movie: (id: string) => `https://www.embedsoap.com/embed/movie/?id=${id}`,

@@ -1,16 +1,17 @@
 .container {
-  padding: 15px 20px;
-  background: var(--bg-sidebar);
-  border-bottom: 1px solid var(--border);
+  padding: 16px 20px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .label {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  margin-bottom: 10px;
+  letter-spacing: 1.5px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
 }
 
 .servers {
@@ -20,23 +21,51 @@
 }
 
 .server {
-  padding: 6px 12px;
+  padding: 8px 16px;
   font-size: 12px;
-  background: var(--bg-dark);
-  border: 1px solid var(--border);
-  color: var(--text);
+  font-weight: 600;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border);
+  color: var(--text-primary);
   cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.2s;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.server::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0;
+  transition: var(--transition);
 }
 
 .server:hover {
-  background: var(--bg-activity);
-  border-color: var(--accent);
+  background: var(--bg-elevated);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.server:hover::before {
+  opacity: 0.1;
 }
 
 .server.active {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  border-color: var(--accent-primary);
   color: #fff;
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.server.active::before {
+  opacity: 1;
+}
+
+.server > * {
+  position: relative;
+  z-index: 1;
 }

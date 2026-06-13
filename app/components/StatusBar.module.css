@@ -1,17 +1,30 @@
 .statusBar {
   height: 32px;
-  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-tertiary) 100%);
+  background: linear-gradient(90deg, var(--bg-elevated) 0%, var(--bg-tertiary) 50%, var(--bg-elevated) 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
   font-size: 11px;
   color: var(--text-secondary);
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  border-top: 1px solid var(--border-light);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
   font-weight: 600;
   flex-shrink: 0;
   overflow: hidden;
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+.statusBar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--purple-primary), var(--accent-primary));
+  opacity: 0.4;
 }
 
 .left, .right {
@@ -26,20 +39,44 @@
   align-items: center;
   gap: 6px;
   cursor: default;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
   transition: var(--transition);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  position: relative;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-primary), var(--purple-primary));
+  opacity: 0;
+  transition: var(--transition);
+  border-radius: inherit;
 }
 
 .item:hover {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border);
+}
+
+.item:hover::before {
+  opacity: 0.08;
+}
+
+.item > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Responsive ── */
@@ -55,6 +92,7 @@
   }
 
   .item {
-    padding: 3px 6px;
+    padding: 4px 8px;
+    letter-spacing: 0.5px;
   }
 }
