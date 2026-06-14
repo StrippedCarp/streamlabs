@@ -88,7 +88,7 @@ export default function HLSPlayer({ src, type, poster, onReady, onError }: HLSPl
 
   const loadDASH = async () => {
     try {
-      const dashjs = (await import('dashjs')).default;
+      const dashjs = await import('dashjs');
       const player = dashjs.MediaPlayer().create();
       player.initialize(videoRef.current!, src, true);
       
