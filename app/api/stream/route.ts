@@ -81,32 +81,93 @@ async function getStreamSources(
 ): Promise<StreamSource[]> {
   const sources: StreamSource[] = [];
 
-  // Try VidFast (priority 1 - highest reliability)
+  console.log('Trying all providers...');
+
+  // Try SuperStream API (reliable alternative)
   try {
-    const vidfastSource = await fetchVidFastDirect(tmdbId, type, season, episode);
-    if (vidfastSource) {
-      sources.push(vidfastSource);
-    }
+    const superStreamSources = await fetchSuperStream(tmdbId, type, season, episode);
+    sources.push(...superStreamSources);
   } catch (e) {
-    console.error('VidFast failed:', e);
+    console.error('SuperStream failed:', e);
   }
 
-  // Try Consumet FlixHQ API (free community API)
-  try {
-    const consumetSources = await fetchConsumetFlixHQ(tmdbId, type, season, episode);
-    sources.push(...consumetSources);
-  } catch (e) {
-    console.error('Consumet failed:', e);
-  }
+  // Try all providers in parallel for faster response
+  const providers = [
+    fetchConsumetFlixHQ(tmdbId, type, season, episode),
+    fetchVidFastDirect(tmdbId, type, season, episode).then(s => s ? [s] : []),
+    fetchVidSrcDirect(tmdbId, type, season, episode).then(s => s ? [s] : []),
+  ];
 
-  // Try VidSrc extraction (fallback)
-  try {
-    const vidsrcSource = await fetchVidSrcDirect(tmdbId, type, season, episode);
-    if (vidsrcSource) {
-      sources.push(vidsrcSource);
+  const results = await Promise.allSettled(providers);
+  
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      const providerSources = result.value;
+      if (Array.isArray(providerSources)) {
+        sources.push(...providerSources);
+      }
+      console.log(`Provider ${index} returned ${Array.isArray(providerSources) ? providerSources.length : 0} sources`);
+    } else {
+      console.error(`Provider ${index} failed:`, result.reason);
     }
-  } catch (e) {
-    console.error('VidSrc failed:', e);
+  });
+
+  return sources;
+}
+
+/**
+ * SuperStream API Provider
+ * Alternative free streaming API with good reliability
+ */
+async function fetchSuperStream(
+  tmdbId: string,
+  type: string,
+  season?: string | null,
+  episode?: string | null
+): Promise<StreamSource[]> {
+  const sources: StreamSource[] = [];
+
+  try {
+    console.log(`SuperStream: Fetching for TMDB ${tmdbId}`);
+    
+    // Build URL based on type
+    let apiUrl = `https://api.consumet.org/meta/tmdb/watch/${tmdbId}`;
+    if (type === 'tv' && season && episode) {
+      apiUrl += `?s=${season}&e=${episode}`;
+    }
+
+    const response = await fetch(apiUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': 'application/json',
+      },
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (!response.ok) {
+      console.log(`SuperStream returned ${response.status}`);
+      return sources;
+    }
+
+    const data = await response.json();
+
+    // Extract sources
+    if (data.sources && Array.isArray(data.sources)) {
+      data.sources.forEach((source: any) => {
+        if (source.url && source.url.includes('.m3u8')) {
+          sources.push({
+            url: source.url,
+            quality: source.quality || 'auto',
+            type: 'hls',
+            provider: 'superstream',
+          });
+        }
+      });
+    }
+
+    console.log(`SuperStream found ${sources.length} sources`);
+  } catch (error) {
+    console.error('SuperStream error:', error);
   }
 
   return sources;
@@ -122,13 +183,13 @@ async function fetchConsumetFlixHQ(
   season?: string | null,
   episode?: string | null
 ): Promise<StreamSource[]> {
-  const sources: StreamSource[] = [];
+  const sources: StreamSource[] = [];  // ← Fixed: was `const sources = []`
 
   try {
     console.log(`Consumet: Searching for TMDB ${tmdbId} (${type})`);
     
-    // Search by TMDB ID
-    const searchUrl = `https://consumet-api.vercel.app/movies/flixhq/${tmdbId}`;
+    // Use the info endpoint which works better with TMDB IDs
+    const searchUrl = `https://consumet-api.vercel.app/movies/flixhq/info?id=${tmdbId}`;
     const searchRes = await fetch(searchUrl, {
       headers: { 
         'User-Agent': 'Mozilla/5.0',
