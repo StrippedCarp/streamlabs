@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Header from './components/Header';
 import ActivityBar from './components/ActivityBar';
 import Browse from './components/Browse';
@@ -11,7 +11,7 @@ import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
 import EpisodeSelector from './components/EpisodeSelector';
 import { MediaItem, StreamServer, TVSeason } from './types';
-import { getStreamServers, getTVSeasons, getTVSeasonEpisodes } from './utils/tmdb';
+import { getStreamServers, getTVSeasons } from './utils/tmdb';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -23,26 +23,11 @@ export default function Home() {
   const [servers, setServers] = useState<StreamServer[]>([]);
   const [currentServer, setCurrentServer] = useState<StreamServer | null>(null);
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
-  const [autoRetry, setAutoRetry] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
   const [tvSeasons, setTvSeasons] = useState<TVSeason[]>([]);
   const [currentSeason, setCurrentSeason] = useState(1);
   const [currentEpisode, setCurrentEpisode] = useState(1);
   const [showEpisodeSelector, setShowEpisodeSelector] = useState(false);
-  // New: Direct streaming mode toggle
   const [useDirectStreaming, setUseDirectStreaming] = useState(true);
-
-  useEffect(() => {
-    if (autoRetry && retryCount > 0 && retryCount < servers.length && currentServer) {
-      const timer = setTimeout(() => {
-        const nextServer = servers[retryCount];
-        if (nextServer) {
-          handleServerChange(nextServer, false);
-        }
-      }, 8000);
-      return () => clearTimeout(timer);
-    }
-  }, [retryCount, autoRetry]);
 
   const handleSearch = (results: MediaItem[]) => {
     setSearchResults(results);
@@ -50,38 +35,33 @@ export default function Home() {
 
   const handleMediaSelect = async (item: MediaItem) => {
     setSelectedMedia(item);
-    setRetryCount(0);
 
     if (item.type === 'movie') {
       setShowEpisodeSelector(false);
       const streamServers = getStreamServers(item.id, 'movie');
       setServers(streamServers);
       if (streamServers.length > 0) {
-        const firstServer = streamServers[0];
-        setCurrentServer(firstServer);
-        setCurrentUrl(firstServer.url);
-        setCurrentTitle(item.title);
+        setCurrentServer(streamServers[0]);
+        setCurrentUrl(streamServers[0].url);
       }
-      // Auto-switch to player on mobile after selecting
+      setCurrentTitle(item.title);
       setMobileTab('player');
     } else {
       const seasons = await getTVSeasons(item.id);
       setTvSeasons(seasons);
       setShowEpisodeSelector(true);
+      setCurrentSeason(1);
+      setCurrentEpisode(1);
 
       if (seasons.length > 0) {
-        setCurrentSeason(1);
-        setCurrentEpisode(1);
         const streamServers = getStreamServers(item.id, 'tv', 1, 1);
         setServers(streamServers);
         if (streamServers.length > 0) {
-          const firstServer = streamServers[0];
-          setCurrentServer(firstServer);
-          setCurrentUrl(firstServer.url);
-          setCurrentTitle(`${item.title} S01E01`);
+          setCurrentServer(streamServers[0]);
+          setCurrentUrl(streamServers[0].url);
         }
+        setCurrentTitle(`${item.title} S01E01`);
       }
-      // Auto-switch to episodes panel on mobile for TV shows
       setMobileTab('episodes');
     }
   };
@@ -96,19 +76,14 @@ export default function Home() {
     setServers(streamServers);
 
     if (streamServers.length > 0) {
-      const firstServer = streamServers[0];
-      setCurrentServer(firstServer);
-      setCurrentUrl(firstServer.url);
-      setCurrentTitle(`${selectedMedia.title} S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')} - ${episodeName}`);
+      setCurrentServer(streamServers[0]);
+      setCurrentUrl(streamServers[0].url);
     }
-    // Switch to player after picking an episode on mobile
+    setCurrentTitle(`${selectedMedia.title} S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')} - ${episodeName}`);
     setMobileTab('player');
   };
 
-  const handleServerChange = (server: StreamServer, resetRetry = true) => {
-    if (resetRetry) {
-      setRetryCount(0);
-    }
+  const handleServerChange = (server: StreamServer) => {
     setCurrentServer(server);
     setCurrentUrl(server.url);
   };
@@ -117,34 +92,33 @@ export default function Home() {
     <div className={styles.app}>
       <Header />
 
-      {/* Streaming Mode Toggle */}
       <div className={styles.modeToggle}>
         <button
           className={`${styles.modeBtn} ${useDirectStreaming ? styles.modeActive : ''}`}
           onClick={() => setUseDirectStreaming(true)}
         >
-          ⚡ Direct Streaming (No Ads)
+          ⚡ Direct Streaming
         </button>
         <button
           className={`${styles.modeBtn} ${!useDirectStreaming ? styles.modeActive : ''}`}
           onClick={() => setUseDirectStreaming(false)}
         >
-          🔗 Embed Mode (Fallback)
+          🔗 Embed Mode
         </button>
       </div>
 
-      {/* ── Desktop layout ── */}
       <div className={styles.container}>
         <ActivityBar activeView={activeView} onViewChange={setActiveView} />
-        {activeView === 'explorer' && (
-          <Browse onMediaSelect={handleMediaSelect} />
-        )}
+        
+        {activeView === 'explorer' && <Browse onMediaSelect={handleMediaSelect} />}
+        
         {activeView === 'search' && (
           <div className={styles.searchPanel}>
             <SearchBar onSearch={handleSearch} />
             <SearchResults results={searchResults} onSelect={handleMediaSelect} />
           </div>
         )}
+        
         <div className={styles.main}>
           {useDirectStreaming ? (
             <DirectVideoPlayer
@@ -165,6 +139,7 @@ export default function Home() {
           )}
           <StatusBar currentMedia={currentTitle !== 'Welcome' ? currentTitle : ''} />
         </div>
+        
         {showEpisodeSelector && selectedMedia && tvSeasons.length > 0 && (
           <EpisodeSelector
             tmdbId={selectedMedia.id}
@@ -176,15 +151,12 @@ export default function Home() {
         )}
       </div>
 
-      {/* ── Mobile layout ── */}
       <div className={styles.mobileContainer}>
-        {/* Mobile tab: Browse / Search */}
-        {(mobileTab === 'browse') && (
+        {mobileTab === 'browse' && (
           <div className={styles.mobilePanel}>
-            {activeView === 'explorer' && (
+            {activeView === 'explorer' ? (
               <Browse onMediaSelect={handleMediaSelect} />
-            )}
-            {activeView === 'search' && (
+            ) : (
               <div className={styles.mobileSearchPanel}>
                 <SearchBar onSearch={handleSearch} />
                 <SearchResults results={searchResults} onSelect={handleMediaSelect} />
@@ -193,7 +165,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Mobile tab: Player */}
         {mobileTab === 'player' && (
           <div className={styles.mobilePanel}>
             {useDirectStreaming ? (
@@ -216,25 +187,22 @@ export default function Home() {
           </div>
         )}
 
-        {/* Mobile tab: Episodes */}
-        {mobileTab === 'episodes' && showEpisodeSelector && selectedMedia && tvSeasons.length > 0 && (
+        {mobileTab === 'episodes' && (
           <div className={styles.mobilePanel}>
-            <EpisodeSelector
-              tmdbId={selectedMedia.id}
-              seasons={tvSeasons}
-              onEpisodeSelect={handleEpisodeSelect}
-              currentSeason={currentSeason}
-              currentEpisode={currentEpisode}
-            />
-          </div>
-        )}
-        {mobileTab === 'episodes' && !showEpisodeSelector && (
-          <div className={styles.mobilePanel}>
-            <Browse onMediaSelect={handleMediaSelect} />
+            {showEpisodeSelector && selectedMedia && tvSeasons.length > 0 ? (
+              <EpisodeSelector
+                tmdbId={selectedMedia.id}
+                seasons={tvSeasons}
+                onEpisodeSelect={handleEpisodeSelect}
+                currentSeason={currentSeason}
+                currentEpisode={currentEpisode}
+              />
+            ) : (
+              <Browse onMediaSelect={handleMediaSelect} />
+            )}
           </div>
         )}
 
-        {/* Mobile bottom nav */}
         <nav className={styles.mobileNav}>
           <button
             className={`${styles.mobileNavBtn} ${mobileTab === 'browse' && activeView === 'explorer' ? styles.mobileNavActive : ''}`}
