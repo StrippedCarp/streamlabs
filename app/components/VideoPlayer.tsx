@@ -231,7 +231,6 @@ export default function VideoPlayer({ url, title, servers, onServerChange, curre
               className={styles.iframe}
               allowFullScreen
               allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer"
-              referrerPolicy="origin"
               onLoad={handleIframeLoad}
               onError={handleIframeError}
               style={{ opacity: loading || error || loadTimeout || autoSwitching ? 0.3 : 1 }}

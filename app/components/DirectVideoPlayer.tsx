@@ -75,18 +75,17 @@ export default function DirectVideoPlayer({
       }
 
       const response = await fetch(`/api/stream?${params}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch streams');
-      }
-
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.message || 'Failed to fetch streams');
+      }
 
       if (data.sources && data.sources.length > 0) {
         setSources(data.sources);
         setCurrentSource(data.sources[0]); // Use first (best quality)
       } else {
-        setError('No streams available for this content');
+        setError(data?.message || 'No streams available for this content');
       }
     } catch (err) {
       console.error('Stream fetch error:', err);

@@ -187,11 +187,10 @@ async function fetchConsumetFlixHQ(
 
   try {
     console.log(`Consumet: Searching for TMDB ${tmdbId} (${type})`);
-    
-    // Use the info endpoint which works better with TMDB IDs
-    const searchUrl = `https://consumet-api.vercel.app/movies/flixhq/info?id=${tmdbId}`;
+    const mediaTypePath = type === 'movie' ? 'movies' : 'tv';
+    const searchUrl = `https://api.consumet.org/${mediaTypePath}/flixhq/${tmdbId}`;
     const searchRes = await fetch(searchUrl, {
-      headers: { 
+      headers: {
         'User-Agent': 'Mozilla/5.0',
         'Accept': 'application/json',
       },
@@ -200,10 +199,11 @@ async function fetchConsumetFlixHQ(
 
     if (!searchRes.ok) {
       console.log(`Consumet search failed: ${searchRes.status}`);
-      throw new Error(`Search failed: ${searchRes.status}`);
+      throw new Error(`Consumet search failed: ${searchRes.status}`);
     }
 
     const searchData = (await searchRes.json()) as ConsumetSearchData;
+    console.log('Consumet search data:', searchData);
     
     if (!searchData || !searchData.id) {
       console.log('Consumet: No media ID found');
