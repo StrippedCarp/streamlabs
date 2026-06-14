@@ -3,7 +3,8 @@ import { TMDBMovie, MediaItem, StreamServer } from '../types';
 
 export async function searchMedia(query: string): Promise<MediaItem[]> {
   try {
-    const response = await fetch(API_ENDPOINTS.search(query));
+    // Use cached metadata API
+    const response = await fetch(`/api/metadata?query=${encodeURIComponent(query)}&type=multi`);
     const data = await response.json();
     
     return data.results
@@ -167,5 +168,20 @@ export async function getTVSeasonEpisodes(tvId: number, season: number) {
   } catch (error) {
     console.error('TV episodes error:', error);
     return [];
+  }
+}
+
+// New: Check server health via API
+export async function checkServerHealth(url: string): Promise<'online' | 'offline'> {
+  try {
+    const response = await fetch('/api/health', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    const data = await response.json();
+    return data.status;
+  } catch (error) {
+    return 'offline';
   }
 }
