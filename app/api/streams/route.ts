@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { addonManager } from '@/app/addons';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -22,27 +21,13 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  try {
-    const streams = await addonManager.getStreamsFromAllAddons(
-      type,
-      tmdbId,
-      season ? parseInt(season) : undefined,
-      episode ? parseInt(episode) : undefined
-    );
-
-    return NextResponse.json({
-      tmdbId,
-      type,
-      season: season ? parseInt(season) : null,
-      episode: episode ? parseInt(episode) : null,
-      streams,
-      count: streams.length,
-      timestamp: Date.now()
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to fetch streams' },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({
+    tmdbId,
+    type,
+    season: season ? parseInt(season) : null,
+    episode: episode ? parseInt(episode) : null,
+    streams: [],
+    count: 0,
+    timestamp: Date.now()
+  });
 }
