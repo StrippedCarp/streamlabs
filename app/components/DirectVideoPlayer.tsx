@@ -190,7 +190,7 @@ export default function DirectVideoPlayer({
         <button className={styles.retryBtn} onClick={fetchStreams}>
           🔄 Retry
         </button>
-        <p className={styles.hint}>This content might not be available yet</p>
+        <p className={styles.hint}>Try switching to Embed Mode above for more streaming options</p>
       </div>
     );
   }
