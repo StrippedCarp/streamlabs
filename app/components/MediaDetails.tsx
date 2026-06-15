@@ -174,7 +174,7 @@ export default function MediaDetails({
                 </div>
                 {ep.still_path ? (
                   <img
-                    src={`https://image.tmdb.org/t/p/w300${ep.still_path}`}
+                    src={`https://image.tmdb.org/t/p/w500${ep.still_path}`}
                     alt={ep.name}
                     className={styles.episodeThumb}
                   />
@@ -189,9 +189,7 @@ export default function MediaDetails({
                   <div className={styles.episodeName}>{ep.name}</div>
                   {ep.overview && (
                     <div className={styles.episodeOverview}>
-                      {ep.overview.length > 100
-                        ? `${ep.overview.substring(0, 100)}...`
-                        : ep.overview}
+                      {ep.overview}
                     </div>
                   )}
                 </div>
