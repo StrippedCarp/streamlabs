@@ -5,7 +5,7 @@ import Header from './components/Header';
 import ActivityBar from './components/ActivityBar';
 import Browse from './components/Browse';
 import VideoPlayer from './components/VideoPlayer';
-import DirectVideoPlayer from './components/DirectVideoPlayer';
+import DirectVideoPlayer from './components/DirectVideoPlayer2';
 import StatusBar from './components/StatusBar';
 import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
