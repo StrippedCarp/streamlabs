@@ -7,72 +7,6 @@
   background: var(--bg-primary);
 }
 
-/* Mode Toggle - Modern Pills Design */
-.modeToggle {
-  display: flex;
-  gap: 8px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-light);
-  padding: 12px clamp(16px, 4vw, 48px);
-  flex-shrink: 0;
-  animation: fadeInDown 0.4s ease;
-}
-
-.modeBtn {
-  flex: 1;
-  padding: 12px 20px;
-  font-size: 13px;
-  font-weight: 700;
-  background: var(--bg-tertiary);
-  border: 2px solid transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: var(--transition);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-radius: var(--radius-full);
-  position: relative;
-  overflow: hidden;
-}
-
-.modeBtn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--accent-primary), var(--purple-primary));
-  opacity: 0;
-  transition: var(--transition);
-  border-radius: inherit;
-}
-
-.modeBtn:hover {
-  background: var(--bg-elevated);
-  border-color: var(--accent-primary);
-  color: var(--text-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.modeBtn:hover::before {
-  opacity: 0.1;
-}
-
-.modeActive {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
-  border-color: transparent !important;
-  color: var(--text-primary) !important;
-  box-shadow: var(--shadow-glow) !important;
-}
-
-.modeActive::before {
-  opacity: 1 !important;
-}
-
-.modeBtn > * {
-  position: relative;
-  z-index: 1;
-}
-
 /* Desktop Layout */
 .container {
   display: flex;
@@ -117,10 +51,6 @@
   .app {
     height: 100dvh;
     overflow: hidden;
-  }
-
-  .modeToggle {
-    display: none;
   }
 
   .container {
