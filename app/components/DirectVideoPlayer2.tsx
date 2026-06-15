@@ -17,6 +17,8 @@ interface DirectVideoPlayerProps {
   onEpisodeSelect?: (season: number, episode: number, episodeName: string) => void;
   onCloseOverlay?: () => void;
   onOpenOverlay?: () => void;
+  onServerChange?: (serverId: string, serverName: string) => void;
+  defaultServerId?: string;
 }
 
 export default function DirectVideoPlayer({
@@ -30,6 +32,8 @@ export default function DirectVideoPlayer({
   onEpisodeSelect,
   onCloseOverlay,
   onOpenOverlay,
+  onServerChange,
+  defaultServerId = '',
 }: DirectVideoPlayerProps) {
   const [streams, setStreams] = useState<StreamLink[]>([]);
   const [currentStream, setCurrentStream] = useState<StreamLink | null>(null);
@@ -47,6 +51,15 @@ export default function DirectVideoPlayer({
 
     loadStreams();
   }, [tmdbId, mediaType, season, episode]);
+
+  useEffect(() => {
+    if (defaultServerId && streams.length > 0) {
+      const savedStream = streams.find(s => s.title?.includes(defaultServerId));
+      if (savedStream) {
+        setCurrentStream(savedStream);
+      }
+    }
+  }, [defaultServerId, streams]);
 
   useEffect(() => {
     if (showEpisodeOverlay && tvSeasons.length > 0 && tmdbId) {
@@ -179,6 +192,11 @@ export default function DirectVideoPlayer({
             className={styles.iframe}
             allowFullScreen
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+            onLoad={() => {
+              if (onServerChange && currentStream.title) {
+                onServerChange(currentStream.title, currentStream.title);
+              }
+            }}
           />
         )}
       </div>

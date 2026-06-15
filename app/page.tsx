@@ -9,8 +9,10 @@ import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
 import DirectVideoPlayer from './components/DirectVideoPlayer2';
 import MediaDetails from './components/MediaDetails';
+import ContinueWatching from './components/ContinueWatching';
 import { MediaItem, TVSeason } from './types';
 import { getTVSeasons } from './utils/tmdb';
+import { saveWatchHistory, getLastWatched, WatchHistoryItem } from './utils/watchHistory';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -23,6 +25,8 @@ export default function Home() {
   const [currentEpisode, setCurrentEpisode] = useState(1);
   const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
   const [tvSeasons, setTvSeasons] = useState<TVSeason[]>([]);
+  const [currentServerId, setCurrentServerId] = useState<string>('');
+  const [currentServerName, setCurrentServerName] = useState<string>('');
 
   const handleSearch = (results: MediaItem[]) => {
     setSearchResults(results);
@@ -32,19 +36,79 @@ export default function Home() {
     setSelectedMedia(item);
     setActiveView('player');
 
+    const lastWatched = getLastWatched(item.id, item.type);
+
     if (item.type === 'movie') {
+      setShowEpisodeOverlay(false);
+      setCurrentTitle(item.title);
+      setCurrentSeason(1);
+      setCurrentEpisode(1);
+      
+      if (lastWatched) {
+        setCurrentServerId(lastWatched.serverId);
+        setCurrentServerName(lastWatched.serverName);
+      }
+      
+      setMobileTab('player');
+    } else {
+      const seasons = await getTVSeasons(item.id);
+      setTvSeasons(seasons);
+      setShowEpisodeOverlay(true);
+
+      const startSeason = lastWatched?.season || 1;
+      const startEpisode = lastWatched?.episode || 1;
+      
+      setCurrentSeason(startSeason);
+      setCurrentEpisode(startEpisode);
+      
+      if (lastWatched?.serverId) {
+        setCurrentServerId(lastWatched.serverId);
+        setCurrentServerName(lastWatched.serverName);
+      }
+      
+      setCurrentTitle(`${item.title} S${startSeason.toString().padStart(2, '0')}E${startEpisode.toString().padStart(2, '0')}`);
+      setMobileTab('player');
+    }
+
+    saveWatchHistory({
+      tmdbId: item.id,
+      mediaType: item.type,
+      title: item.title,
+      poster: item.poster,
+      season: item.type === 'tv' ? (lastWatched?.season || 1) : undefined,
+      episode: item.type === 'tv' ? (lastWatched?.episode || 1) : undefined,
+      serverId: lastWatched?.serverId || '',
+      serverName: lastWatched?.serverName || 'Default',
+    });
+  };
+
+  const handleContinueWatching = async (item: WatchHistoryItem) => {
+    setSelectedMedia({
+      id: item.tmdbId,
+      title: item.title,
+      type: item.mediaType,
+      poster: item.poster,
+      year: '',
+      rating: 0,
+      overview: '',
+    });
+    setActiveView('player');
+    setCurrentServerId(item.serverId);
+    setCurrentServerName(item.serverName);
+
+    if (item.mediaType === 'movie') {
       setShowEpisodeOverlay(false);
       setCurrentTitle(item.title);
       setCurrentSeason(1);
       setCurrentEpisode(1);
       setMobileTab('player');
     } else {
-      const seasons = await getTVSeasons(item.id);
+      const seasons = await getTVSeasons(item.tmdbId);
       setTvSeasons(seasons);
-      setShowEpisodeOverlay(true);
-      setCurrentSeason(1);
-      setCurrentEpisode(1);
-      setCurrentTitle(`${item.title} S01E01`);
+      setShowEpisodeOverlay(false);
+      setCurrentSeason(item.season || 1);
+      setCurrentEpisode(item.episode || 1);
+      setCurrentTitle(`${item.title} S${(item.season || 1).toString().padStart(2, '0')}E${(item.episode || 1).toString().padStart(2, '0')}${item.episodeName ? ` - ${item.episodeName}` : ''}`);
       setMobileTab('player');
     }
   };
@@ -57,6 +121,36 @@ export default function Home() {
     setCurrentTitle(`${selectedMedia.title} S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')} - ${episodeName}`);
     setShowEpisodeOverlay(false);
     setMobileTab('player');
+
+    saveWatchHistory({
+      tmdbId: selectedMedia.id,
+      mediaType: selectedMedia.type,
+      title: selectedMedia.title,
+      poster: selectedMedia.poster,
+      season,
+      episode,
+      episodeName,
+      serverId: currentServerId,
+      serverName: currentServerName,
+    });
+  };
+
+  const handleServerChange = (serverId: string, serverName: string) => {
+    setCurrentServerId(serverId);
+    setCurrentServerName(serverName);
+    
+    if (selectedMedia) {
+      saveWatchHistory({
+        tmdbId: selectedMedia.id,
+        mediaType: selectedMedia.type,
+        title: selectedMedia.title,
+        poster: selectedMedia.poster,
+        season: selectedMedia.type === 'tv' ? currentSeason : undefined,
+        episode: selectedMedia.type === 'tv' ? currentEpisode : undefined,
+        serverId,
+        serverName,
+      });
+    }
   };
 
   return (
@@ -66,7 +160,12 @@ export default function Home() {
       <div className={styles.container}>
         <ActivityBar activeView={activeView} onViewChange={setActiveView} />
         
-        {activeView === 'explorer' && <Browse onMediaSelect={handleMediaSelect} />}
+        {activeView === 'explorer' && (
+          <>
+            <ContinueWatching onMediaSelect={handleContinueWatching} />
+            <Browse onMediaSelect={handleMediaSelect} />
+          </>
+        )}
         
         {activeView === 'search' && (
           <div className={styles.searchPanel}>
@@ -88,6 +187,8 @@ export default function Home() {
               onEpisodeSelect={handleEpisodeSelect}
               onCloseOverlay={() => setShowEpisodeOverlay(false)}
               onOpenOverlay={() => setShowEpisodeOverlay(true)}
+              onServerChange={handleServerChange}
+              defaultServerId={currentServerId}
             />
             <StatusBar currentMedia={currentTitle !== 'Welcome' ? currentTitle : ''} />
             {selectedMedia && (
@@ -107,7 +208,10 @@ export default function Home() {
         {mobileTab === 'browse' && (
           <div className={styles.mobilePanel}>
             {activeView === 'explorer' ? (
-              <Browse onMediaSelect={handleMediaSelect} />
+              <>
+                <ContinueWatching onMediaSelect={handleContinueWatching} />
+                <Browse onMediaSelect={handleMediaSelect} />
+              </>
             ) : (
               <div className={styles.mobileSearchPanel}>
                 <SearchBar onSearch={handleSearch} />
@@ -130,6 +234,8 @@ export default function Home() {
               onEpisodeSelect={handleEpisodeSelect}
               onCloseOverlay={() => setShowEpisodeOverlay(false)}
               onOpenOverlay={() => setShowEpisodeOverlay(true)}
+              onServerChange={handleServerChange}
+              defaultServerId={currentServerId}
             />
             {selectedMedia && (
               <MediaDetails
