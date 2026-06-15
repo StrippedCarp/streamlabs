@@ -156,36 +156,6 @@ export default function MediaDetails({
         </div>
       </div>
 
-      {/* Cast Section */}
-      {cast.length > 0 && (
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Cast</h2>
-          <div className={styles.castGrid}>
-            {cast.map((actor) => (
-              <div key={actor.id} className={styles.castCard}>
-                {actor.profile_path ? (
-                  <img
-                    src={`https://image.tmdb.org/t/p/w185${actor.profile_path}`}
-                    alt={actor.name}
-                    className={styles.castImage}
-                  />
-                ) : (
-                  <div className={styles.castPlaceholder}>
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                  </div>
-                )}
-                <div className={styles.castInfo}>
-                  <div className={styles.castName}>{actor.name}</div>
-                  <div className={styles.castCharacter}>{actor.character}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Episodes Section (TV Shows only) */}
       {mediaType === 'tv' && episodes.length > 0 && (
         <div className={styles.section}>
@@ -224,6 +194,36 @@ export default function MediaDetails({
                         : ep.overview}
                     </div>
                   )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Cast Section */}
+      {cast.length > 0 && (
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>Cast</h2>
+          <div className={styles.castGrid}>
+            {cast.map((actor) => (
+              <div key={actor.id} className={styles.castCard}>
+                {actor.profile_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w185${actor.profile_path}`}
+                    alt={actor.name}
+                    className={styles.castImage}
+                  />
+                ) : (
+                  <div className={styles.castPlaceholder}>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                  </div>
+                )}
+                <div className={styles.castInfo}>
+                  <div className={styles.castName}>{actor.name}</div>
+                  <div className={styles.castCharacter}>{actor.character}</div>
                 </div>
               </div>
             ))}
