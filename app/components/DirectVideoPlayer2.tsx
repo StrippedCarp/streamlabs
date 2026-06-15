@@ -41,6 +41,7 @@ export default function DirectVideoPlayer({
   const [selectedSeason, setSelectedSeason] = useState(season || 1);
   const [episodes, setEpisodes] = useState<any[]>([]);
   const [loadingEpisodes, setLoadingEpisodes] = useState(false);
+  const [keepServer, setKeepServer] = useState(false);
 
   useEffect(() => {
     if (!tmdbId || !mediaType) {
@@ -50,10 +51,20 @@ export default function DirectVideoPlayer({
     }
 
     loadStreams();
-  }, [tmdbId, mediaType, season, episode]);
+  }, [tmdbId, mediaType]);
 
   useEffect(() => {
-    if (defaultServerId && streams.length > 0) {
+    if (keepServer && currentStream && streams.length > 0) {
+      const sameServer = streams.find(s => s.title === currentStream.title);
+      if (sameServer) {
+        setCurrentStream(sameServer);
+      }
+    }
+    setKeepServer(false);
+  }, [season, episode, streams]);
+
+  useEffect(() => {
+    if (defaultServerId && streams.length > 0 && !currentStream) {
       const savedStream = streams.find(s => s.title?.includes(defaultServerId));
       if (savedStream) {
         setCurrentStream(savedStream);
@@ -69,6 +80,7 @@ export default function DirectVideoPlayer({
 
   async function loadStreams() {
     setLoading(true);
+    const previousServer = currentStream?.title;
 
     try {
       const allStreams = await addonManager.getAllStreams(
@@ -79,7 +91,16 @@ export default function DirectVideoPlayer({
       );
 
       setStreams(allStreams);
-      if (allStreams.length > 0) {
+      
+      if (previousServer) {
+        const sameServer = allStreams.find(s => s.title === previousServer);
+        if (sameServer) {
+          setCurrentStream(sameServer);
+          setKeepServer(true);
+        } else if (allStreams.length > 0) {
+          setCurrentStream(allStreams[0]);
+        }
+      } else if (allStreams.length > 0) {
         setCurrentStream(allStreams[0]);
       }
     } catch (error) {
