@@ -210,6 +210,136 @@ export class VidSrcNLAddon extends StreamAddon {
 }
 
 // ============================================
+// ADDON 8: VidFast
+// ============================================
+export class VidFastAddon extends StreamAddon {
+  manifest: AddonManifest = {
+    id: 'vidfast',
+    name: 'VidFast',
+    description: 'Fast streaming with multiple servers',
+    version: '1.0.0',
+    enabled: true,
+  };
+
+  async getStreams(tmdbId: number, type: 'movie' | 'tv', season?: number, episode?: number): Promise<StreamLink[]> {
+    const url = type === 'movie'
+      ? `https://vidfast.pro/embed/movie/${tmdbId}`
+      : `https://vidfast.pro/embed/tv/${tmdbId}/${season}/${episode}`;
+
+    return [{
+      url,
+      quality: 'auto',
+      type: 'embed',
+      title: 'VidFast - Fast',
+    }];
+  }
+}
+
+// ============================================
+// ADDON 9: VidSrc.me
+// ============================================
+export class VidSrcMeAddon extends StreamAddon {
+  manifest: AddonManifest = {
+    id: 'vidsrc-me',
+    name: 'VidSrc.me',
+    description: 'VidSrc alternative domain',
+    version: '1.0.0',
+    enabled: true,
+  };
+
+  async getStreams(tmdbId: number, type: 'movie' | 'tv', season?: number, episode?: number): Promise<StreamLink[]> {
+    const url = type === 'movie'
+      ? `https://vidsrc.me/embed/movie/${tmdbId}`
+      : `https://vidsrc.me/embed/tv/${tmdbId}/${season}/${episode}`;
+
+    return [{
+      url,
+      quality: 'auto',
+      type: 'embed',
+      title: 'VidSrc.me - HD',
+    }];
+  }
+}
+
+// ============================================
+// ADDON 10: SmashyStream
+// ============================================
+export class SmashyStreamAddon extends StreamAddon {
+  manifest: AddonManifest = {
+    id: 'smashystream',
+    name: 'SmashyStream',
+    description: 'High speed streaming',
+    version: '1.0.0',
+    enabled: true,
+  };
+
+  async getStreams(tmdbId: number, type: 'movie' | 'tv', season?: number, episode?: number): Promise<StreamLink[]> {
+    const url = type === 'movie'
+      ? `https://player.smashy.stream/movie/${tmdbId}`
+      : `https://player.smashy.stream/tv/${tmdbId}/${season}/${episode}`;
+
+    return [{
+      url,
+      quality: 'auto',
+      type: 'embed',
+      title: 'SmashyStream - Fast',
+    }];
+  }
+}
+
+// ============================================
+// ADDON 11: EmbedSoap
+// ============================================
+export class EmbedSoapAddon extends StreamAddon {
+  manifest: AddonManifest = {
+    id: 'embedsoap',
+    name: 'EmbedSoap',
+    description: 'Clean embed player',
+    version: '1.0.0',
+    enabled: true,
+  };
+
+  async getStreams(tmdbId: number, type: 'movie' | 'tv', season?: number, episode?: number): Promise<StreamLink[]> {
+    const url = type === 'movie'
+      ? `https://www.embedsoap.com/embed/movie/?id=${tmdbId}`
+      : `https://www.embedsoap.com/embed/series/?id=${tmdbId}&s=${season}&e=${episode}`;
+
+    return [{
+      url,
+      quality: 'auto',
+      type: 'embed',
+      title: 'EmbedSoap - Clean',
+    }];
+  }
+}
+
+// ============================================
+// ADDON 12: MoviesAPI
+// ============================================
+export class MoviesAPIAddon extends StreamAddon {
+  manifest: AddonManifest = {
+    id: 'moviesapi',
+    name: 'MoviesAPI',
+    description: 'API-based streaming',
+    version: '1.0.0',
+    enabled: true,
+  };
+
+  async getStreams(tmdbId: number, type: 'movie' | 'tv', season?: number, episode?: number): Promise<StreamLink[]> {
+    const url = type === 'movie'
+      ? `https://moviesapi.club/movie/${tmdbId}`
+      : `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`;
+
+    return [{
+      url,
+      quality: 'auto',
+      type: 'embed',
+      title: 'MoviesAPI - Stable',
+    }];
+  }
+}
+
+// ============================================
 // ADDON 8: NontonGo
 // ============================================
 export class NontonGoAddon extends StreamAddon {
@@ -246,9 +376,14 @@ export class AddonManager {
     this.register(new VidSrcProAddon());
     this.register(new VidSrcXYZAddon());
     this.register(new VidSrcNLAddon());
+    this.register(new VidSrcMeAddon());
+    this.register(new VidFastAddon());
     this.register(new EmbedSuAddon());
     this.register(new AutoEmbedAddon());
     this.register(new SuperEmbedAddon());
+    this.register(new SmashyStreamAddon());
+    this.register(new MoviesAPIAddon());
+    this.register(new EmbedSoapAddon());
     this.register(new TwoEmbedAddon());
     this.register(new NontonGoAddon());
   }

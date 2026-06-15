@@ -7,7 +7,6 @@ import Browse from './components/Browse';
 import StatusBar from './components/StatusBar';
 import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
-import EpisodeSelector from './components/EpisodeSelector';
 import DirectVideoPlayer from './components/DirectVideoPlayer2';
 import { MediaItem, TVSeason } from './types';
 import { getTVSeasons } from './utils/tmdb';
@@ -15,14 +14,14 @@ import styles from './page.module.css';
 
 export default function Home() {
   const [activeView, setActiveView] = useState('explorer');
-  const [mobileTab, setMobileTab] = useState<'browse' | 'player' | 'episodes'>('browse');
+  const [mobileTab, setMobileTab] = useState<'browse' | 'player'>('browse');
   const [currentTitle, setCurrentTitle] = useState('Welcome');
   const [searchResults, setSearchResults] = useState<MediaItem[]>([]);
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
-  const [tvSeasons, setTvSeasons] = useState<TVSeason[]>([]);
   const [currentSeason, setCurrentSeason] = useState(1);
   const [currentEpisode, setCurrentEpisode] = useState(1);
-  const [showEpisodeSelector, setShowEpisodeSelector] = useState(false);
+  const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
+  const [tvSeasons, setTvSeasons] = useState<TVSeason[]>([]);
 
   const handleSearch = (results: MediaItem[]) => {
     setSearchResults(results);
@@ -30,9 +29,10 @@ export default function Home() {
 
   const handleMediaSelect = async (item: MediaItem) => {
     setSelectedMedia(item);
+    setActiveView('player');
 
     if (item.type === 'movie') {
-      setShowEpisodeSelector(false);
+      setShowEpisodeOverlay(false);
       setCurrentTitle(item.title);
       setCurrentSeason(1);
       setCurrentEpisode(1);
@@ -40,11 +40,11 @@ export default function Home() {
     } else {
       const seasons = await getTVSeasons(item.id);
       setTvSeasons(seasons);
-      setShowEpisodeSelector(true);
+      setShowEpisodeOverlay(true);
       setCurrentSeason(1);
       setCurrentEpisode(1);
       setCurrentTitle(`${item.title} S01E01`);
-      setMobileTab('episodes');
+      setMobileTab('player');
     }
   };
 
@@ -54,6 +54,7 @@ export default function Home() {
     setCurrentSeason(season);
     setCurrentEpisode(episode);
     setCurrentTitle(`${selectedMedia.title} S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')} - ${episodeName}`);
+    setShowEpisodeOverlay(false);
     setMobileTab('player');
   };
 
@@ -73,25 +74,22 @@ export default function Home() {
           </div>
         )}
         
-        <div className={styles.main}>
-          <DirectVideoPlayer
-            tmdbId={selectedMedia?.id || null}
-            mediaType={selectedMedia?.type || null}
-            title={currentTitle}
-            season={currentSeason}
-            episode={currentEpisode}
-          />
-          <StatusBar currentMedia={currentTitle !== 'Welcome' ? currentTitle : ''} />
-        </div>
-        
-        {showEpisodeSelector && selectedMedia && tvSeasons.length > 0 && (
-          <EpisodeSelector
-            tmdbId={selectedMedia.id}
-            seasons={tvSeasons}
-            onEpisodeSelect={handleEpisodeSelect}
-            currentSeason={currentSeason}
-            currentEpisode={currentEpisode}
-          />
+        {activeView === 'player' && (
+          <div className={styles.main}>
+            <DirectVideoPlayer
+              tmdbId={selectedMedia?.id || null}
+              mediaType={selectedMedia?.type || null}
+              title={currentTitle}
+              season={currentSeason}
+              episode={currentEpisode}
+              showEpisodeOverlay={showEpisodeOverlay}
+              tvSeasons={tvSeasons}
+              onEpisodeSelect={handleEpisodeSelect}
+              onCloseOverlay={() => setShowEpisodeOverlay(false)}
+              onOpenOverlay={() => setShowEpisodeOverlay(true)}
+            />
+            <StatusBar currentMedia={currentTitle !== 'Welcome' ? currentTitle : ''} />
+          </div>
         )}
       </div>
 
@@ -117,23 +115,12 @@ export default function Home() {
               title={currentTitle}
               season={currentSeason}
               episode={currentEpisode}
+              showEpisodeOverlay={showEpisodeOverlay}
+              tvSeasons={tvSeasons}
+              onEpisodeSelect={handleEpisodeSelect}
+              onCloseOverlay={() => setShowEpisodeOverlay(false)}
+              onOpenOverlay={() => setShowEpisodeOverlay(true)}
             />
-          </div>
-        )}
-
-        {mobileTab === 'episodes' && (
-          <div className={styles.mobilePanel}>
-            {showEpisodeSelector && selectedMedia && tvSeasons.length > 0 ? (
-              <EpisodeSelector
-                tmdbId={selectedMedia.id}
-                seasons={tvSeasons}
-                onEpisodeSelect={handleEpisodeSelect}
-                currentSeason={currentSeason}
-                currentEpisode={currentEpisode}
-              />
-            ) : (
-              <Browse onMediaSelect={handleMediaSelect} />
-            )}
           </div>
         )}
 
@@ -159,15 +146,6 @@ export default function Home() {
             <span>▶</span>
             <span>Player</span>
           </button>
-          {showEpisodeSelector && (
-            <button
-              className={`${styles.mobileNavBtn} ${mobileTab === 'episodes' ? styles.mobileNavActive : ''}`}
-              onClick={() => setMobileTab('episodes')}
-            >
-              <span>📺</span>
-              <span>Episodes</span>
-            </button>
-          )}
         </nav>
       </div>
     </div>
