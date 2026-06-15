@@ -92,7 +92,12 @@ export default function DirectVideoPlayer({
   if (!tmdbId || !mediaType) {
     return (
       <div className={styles.placeholder}>
-        <h1>🎬 StreamLab</h1>
+        <h1>
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
+          </svg>
+          StreamLab
+        </h1>
         <p>Search or browse to select content</p>
         <div className={styles.info}>
           <p>✨ {addonManager.getEnabledAddons().length} Streaming Sources Active</p>
@@ -114,10 +119,13 @@ export default function DirectVideoPlayer({
   if (streams.length === 0) {
     return (
       <div className={styles.errorOverlay}>
-        <h3>❌ No Streams Found</h3>
+        <h3>No Streams Found</h3>
         <p>This content may not be available</p>
         <button className={styles.retryBtn} onClick={loadStreams}>
-          🔄 Retry
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+          Retry
         </button>
       </div>
     );
@@ -127,11 +135,18 @@ export default function DirectVideoPlayer({
     <div className={styles.container}>
       <div className={styles.tabs}>
         <div className={styles.tab}>
-          <span className={styles.tabIcon}>▶</span>
+          <span className={styles.tabIcon}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </span>
           <span>{title}</span>
           {mediaType === 'tv' && (
             <button className={styles.episodesBtn} onClick={onOpenOverlay}>
-              📺 Episodes
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/>
+              </svg>
+              Episodes
             </button>
           )}
         </div>
@@ -170,8 +185,13 @@ export default function DirectVideoPlayer({
 
       {currentStream && (
         <div className={styles.info}>
-          <span>🎯 {currentStream.title}</span>
-          <span>📊 Quality: {currentStream.quality}</span>
+          <span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            {currentStream.title}
+          </span>
+          <span>Quality: {currentStream.quality}</span>
         </div>
       )}
 
@@ -179,7 +199,12 @@ export default function DirectVideoPlayer({
         <div className={styles.episodeOverlay} onClick={onCloseOverlay}>
           <div className={styles.episodePanel} onClick={(e) => e.stopPropagation()}>
             <div className={styles.overlayHeader}>
-              <h2>📺 Select Episode</h2>
+              <h2>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/>
+                </svg>
+                Select Episode
+              </h2>
               <button className={styles.closeBtn} onClick={onCloseOverlay}>×</button>
             </div>
 
