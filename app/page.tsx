@@ -8,6 +8,7 @@ import StatusBar from './components/StatusBar';
 import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
 import DirectVideoPlayer from './components/DirectVideoPlayer2';
+import MediaDetails from './components/MediaDetails';
 import { MediaItem, TVSeason } from './types';
 import { getTVSeasons } from './utils/tmdb';
 import styles from './page.module.css';
@@ -89,6 +90,15 @@ export default function Home() {
               onOpenOverlay={() => setShowEpisodeOverlay(true)}
             />
             <StatusBar currentMedia={currentTitle !== 'Welcome' ? currentTitle : ''} />
+            {selectedMedia && (
+              <MediaDetails
+                tmdbId={selectedMedia.id}
+                mediaType={selectedMedia.type}
+                currentSeason={currentSeason}
+                currentEpisode={currentEpisode}
+                onEpisodeSelect={handleEpisodeSelect}
+              />
+            )}
           </div>
         )}
       </div>
@@ -121,6 +131,15 @@ export default function Home() {
               onCloseOverlay={() => setShowEpisodeOverlay(false)}
               onOpenOverlay={() => setShowEpisodeOverlay(true)}
             />
+            {selectedMedia && (
+              <MediaDetails
+                tmdbId={selectedMedia.id}
+                mediaType={selectedMedia.type}
+                currentSeason={currentSeason}
+                currentEpisode={currentEpisode}
+                onEpisodeSelect={handleEpisodeSelect}
+              />
+            )}
           </div>
         )}
 

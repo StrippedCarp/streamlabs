@@ -21,6 +21,7 @@
   flex-direction: column;
   min-width: 0;
   background: var(--bg-primary);
+  overflow-y: auto;
 }
 
 .searchPanel {
